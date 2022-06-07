@@ -1,0 +1,10 @@
+FROM openjdk:17-alpine
+
+ARG JARFILE=REPLACE_ME_USING_BUILD_ARG
+ENV JARFILE=$JARFILE
+
+COPY build/libs/$JARFILE /app/$JARFILE
+
+WORKDIR /app
+
+CMD java -jar ${JARFILE}

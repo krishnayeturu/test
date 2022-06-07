@@ -1,0 +1,40 @@
+include:
+  - project: '2ndwatch/gitlab-ci'
+    ref: 'v3.9.0'
+    file: '/gitlab-cr.yml'
+
+variables:
+  IMAGE_NAME: $CI_PROJECT_NAME
+  BUILD_DIR: .
+  BUILD_IMAGE: {{BUILD_IMAGE}}
+
+stages:
+  - build
+  - push
+
+test:
+  stage: build
+  image: $BUILD_IMAGE
+  script:
+    - make test
+
+build:
+  stage: build
+  image: $BUILD_IMAGE
+  script:
+    - make build
+  artifacts:
+    paths:
+      - build/
+
+push-dev:
+  stage: push
+  extends: .gitlab-cr-push-dev
+  variables:
+    BUILD_ARGS: --build-arg JARFILE=$IMAGE_NAME.jar
+
+push-prod:
+  stage: push
+  extends: .gitlab-cr-push-prod
+  variables:
+    BUILD_ARGS: --build-arg JARFILE=$IMAGE_NAME.jar
