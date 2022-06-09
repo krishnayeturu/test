@@ -4,7 +4,7 @@ This project is intended to be used as a template when creating any new microser
 using this template, we will be able to keep many things consistent across our many microservices,
 including build processes, CI/CD, project structure, etc.
 
-# Dependencies
+# System Dependencies
 
 - `docker` >= 20.10.x
 - `make` >= 4.x

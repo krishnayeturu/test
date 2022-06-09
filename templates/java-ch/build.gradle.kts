@@ -1,17 +1,15 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+
 plugins {
     `java-library`
+    id("com.github.johnrengelman.shadow") version "7.+"
 }
 
 group = "com._2ndwatch"
+
 java {
     toolchain {
         languageVersion.set(JavaLanguageVersion.of(17))
-    }
-}
-
-tasks.withType<Jar> {
-    manifest {
-        attributes["Main-Class"] = "com._2ndwatch.Main"
     }
 }
 
@@ -34,6 +32,21 @@ dependencies {
 
 sourceSets.all {
     java.srcDirs("src/main/java", "src/generated/java")
+}
+
+tasks.getByName("build") {
+    finalizedBy("shadowJar")
+}
+
+tasks.getByName<Jar>("jar") {
+    enabled = false
+}
+
+tasks.withType<ShadowJar> {
+    archiveFileName.set(rootProject.name + ".jar")
+    manifest {
+        attributes["Main-Class"] = "com._2ndwatch.Main"
+    }
 }
 
 tasks.getByName<Test>("test") {

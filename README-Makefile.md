@@ -1,8 +1,16 @@
 # Makefile Usage
 Command | Description
 ---|---
-dockerlogin | Performs login to GitLab container registry.
-execrunner | Start a bash shell in an `ms-scaffolder-runner` container.
+build | Builds the application.
+dockerbuild | Builds the application's Dockerfile.
+dockerinit | Performs login to GitLab container registry and pulls images.
 protogen | Generates protos for the project.
-setup | Initializes a template project for the repository. Should only be run after initial project creation.
-update | Updates Makefile and relevant scripts by pulling from ms-scaffolder repository.
+run | Builds the application's Dockefile locally and runs it.
+setup | Initializes a template project for the repository. Should only be run for initial project creation.
+shapp | Start a shell in the application's image container.
+shbuilder | Start a shell in the project's build image container.
+shrunner | Start a shell in an `ms-scaffolder-runner` container.
+test | Runs the application's test suite.
+update | Updates ms-scaffolder Makefile and scripts by pulling from ms-scaffolder repository.
+
+If you'd like to make modifications to this README, please do so in the [ms-scaffolder repository](https://gitlab.com/2ndwatch/microservices/templates/ms-scaffolder).

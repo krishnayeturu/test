@@ -2,6 +2,7 @@
 /.idea
 /bin
 /build
+/src/generated/*
 
 # ms-scaffolder ignores. DO NOT EDIT OR REMOVE.
 /.ms-scaffolder
