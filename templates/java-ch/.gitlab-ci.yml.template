@@ -1,6 +1,6 @@
 include:
   - project: '2ndwatch/gitlab-ci'
-    ref: 'v3.9.0'
+    ref: 'v3.9.2'
     file: '/gitlab-cr.yml'
 
 variables:

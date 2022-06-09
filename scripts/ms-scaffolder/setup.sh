@@ -54,9 +54,15 @@ for FILE in **/*.template **/.*.template; do
         exit 1
     fi
 
+    NEW_FILE=${FILE%.*}
+    
+    # Copy the file first to preserve permissions.
+    cp $FILE $NEW_FILE
+
     sed -e "s~{{PROJECT_SLUG}}~$PROJECT_SLUG~g" \
         -e "s~{{BUILD_IMAGE}}~$BUILD_IMAGE~g" \
-        $FILE > ${FILE%.*}
+        $FILE > $NEW_FILE
+
     rm $FILE
 done
 
