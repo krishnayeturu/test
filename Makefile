@@ -101,7 +101,7 @@ else
 	$(error This command cannot be used until after running `make setup`)
 endif
 
-build: protogen
+build: dockerinit
 ifdef BUILD_IMAGE
 	docker run --rm -it \
 	-v "${CURDIR}":/app \
@@ -113,7 +113,7 @@ else
 	$(error This command cannot be used until after running `make setup`)
 endif
 
-test: build
+test: dockerinit
 ifdef BUILD_IMAGE
 	docker run --rm -it \
 	-v "${CURDIR}":/app \

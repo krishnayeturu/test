@@ -16,13 +16,13 @@ test:
   stage: build
   image: $BUILD_IMAGE
   script:
-    - make test
+    - ./scripts/ms-scaffolder/test.sh
 
 build:
   stage: build
   image: $BUILD_IMAGE
   script:
-    - make build
+    - ./scripts/ms-scaffolder/build.sh
   artifacts:
     paths:
       - build/

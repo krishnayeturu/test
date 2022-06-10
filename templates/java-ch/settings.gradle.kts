@@ -1,1 +1,1 @@
-rootProject.name = System.getProperty("rootProjectName")
+rootProject.name = "java-microservice"
