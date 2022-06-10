@@ -1,8 +1,10 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import com.adarshr.gradle.testlogger.theme.ThemeType
 
 plugins {
     `java-library`
     id("com.github.johnrengelman.shadow") version "7.+"
+    id("com.adarshr.test-logger") version "3.+"
 }
 
 group = "com._2ndwatch"
@@ -51,4 +53,23 @@ tasks.withType<ShadowJar> {
 
 tasks.getByName<Test>("test") {
     useJUnitPlatform()
+    testlogger {
+        theme = ThemeType.STANDARD
+        showExceptions = true
+        showStackTraces = true
+        showFullStackTraces = false
+        showCauses = true
+        slowThreshold = 2000
+        showSummary = true
+        showSimpleNames = false
+        showPassed = true
+        showSkipped = true
+        showFailed = true
+        showOnlySlow = false
+        showStandardStreams = false
+        showPassedStandardStreams = true
+        showSkippedStandardStreams = true
+        showFailedStandardStreams = true
+        logLevel = LogLevel.LIFECYCLE
+    }
 }
