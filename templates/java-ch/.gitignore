@@ -4,6 +4,10 @@
 /build
 /src/generated/*
 
+#streams rocksdb
+/*_state* 
+
+
 # ms-scaffolder ignores. DO NOT EDIT OR REMOVE.
 /.ms-scaffolder
 Makefile
