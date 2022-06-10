@@ -25,9 +25,9 @@ ARGS=
 
 dockerinit:
 	docker login registry.gitlab.com
-	docker pull ${SCAFFOLDER_RUNNER_IMAGE}
+	docker pull ${SCAFFOLDER_RUNNER_IMAGE} || echo "Continue on pull fail incase we are testing a local image"
 ifdef BUILD_IMAGE
-	docker pull ${BUILD_IMAGE}
+	docker pull ${BUILD_IMAGE} || echo "Continue on pull fail incase we are testing a local image"
 endif
 
 shapp: dockerbuild
