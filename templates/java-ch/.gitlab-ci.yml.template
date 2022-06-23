@@ -1,12 +1,12 @@
 include:
   - project: "2ndwatch/gitlab-ci"
-    ref: "v3.10.0"
+    ref: "v3.10.1"
     file: "/aws-access.yml"
   - project: '2ndwatch/gitlab-ci'
-    ref: 'v3.10.0'
+    ref: 'v3.10.1'
     file: '/gitlab-cr.yml'
   - project: "2ndwatch/gitlab-ci"
-    ref: "v3.10.0"
+    ref: "v3.10.1"
     file: "/helm.yml"
 
 variables:
