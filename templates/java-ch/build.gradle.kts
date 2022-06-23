@@ -26,9 +26,12 @@ dependencies {
     implementation("com.sparkjava:spark-core:2.9.3")
     implementation("com.google.protobuf:protobuf-java:3.20.1")
     implementation("com.google.protobuf:protobuf-java-util:3.20.1")
+    implementation("io.github.cdimascio:dotenv-java:2.2.4")
+
     testImplementation("org.apache.kafka:kafka-streams-test-utils:2.6.3")
     testImplementation("org.hamcrest:hamcrest:2.2")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.1")
+    
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.1")
 }
 
