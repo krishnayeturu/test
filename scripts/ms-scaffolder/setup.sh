@@ -44,6 +44,9 @@ cp .ms-scaffolder-temp/$PROJECT_DIR/.gitlab-ci.yml.template ./
 cp -r .ms-scaffolder-temp/$PROJECT_DIR/* ./
 rm -r .ms-scaffolder-temp
 
+# Change helm chart path name to project slug.
+mv deploy/helm/chart deploy/helm/$PROJECT_SLUG
+
 # Load the copied .env variables from the template.
 source .env
 

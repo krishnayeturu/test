@@ -1,0 +1,15 @@
+mslib:
+  deployment:
+    {{PROJECT_SLUG}}:
+      image: registry.gitlab.com/2ndwatch/microservices/apis/{{PROJECT_SLUG}}/{{PROJECT_SLUG}}
+      imageTag: 1.0.0
+      restartPolicy: Always
+      serviceAccountName: {{PROJECT_SLUG}}
+      env:
+        YOUR_ENV_VAR: thevalue
+        ANOTHER_ENV_VAR: anothervalue
+
+  serviceAccount:
+    {{PROJECT_SLUG}}:
+      annotations:
+        eks.amazonaws.com/role-arn: REPLACE

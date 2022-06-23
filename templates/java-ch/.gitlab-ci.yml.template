@@ -1,12 +1,19 @@
 include:
+  - project: "2ndwatch/gitlab-ci"
+    ref: "v3.10.0"
+    file: "/aws-access.yml"
   - project: '2ndwatch/gitlab-ci'
-    ref: 'v3.9.2'
+    ref: 'v3.10.0'
     file: '/gitlab-cr.yml'
+  - project: "2ndwatch/gitlab-ci"
+    ref: "v3.10.0"
+    file: "/helm.yml"
 
 variables:
   IMAGE_NAME: $CI_PROJECT_NAME
   BUILD_DIR: .
   BUILD_IMAGE: {{BUILD_IMAGE}}
+  CHART_PATH: ./deploy/helm/
 
 stages:
   - build
@@ -38,3 +45,32 @@ push-prod:
   extends: .gitlab-cr-push-prod
   variables:
     BUILD_ARGS: --build-arg JARFILE=$IMAGE_NAME.jar
+
+helm-lint:
+  variables:
+    HELM_LINT_ARGS: "--with-subcharts"
+  stage: build
+  extends: .helm-lint
+
+helm-version:
+  stage: build
+  extends: .helm-version
+
+helm-e2e:
+  stage: build
+  extends: .helm-e2e
+
+helm-e2e-all:
+  stage: build
+  variables:
+    MODIFIED_ONLY: "false"
+  when: manual
+  extends: .helm-e2e
+
+helm-validate-dev:
+  stage: build
+  extends: .helm-validate-chart-dev
+
+helm-validate-prod:
+  stage: build
+  extends: .helm-validate-chart-prod
