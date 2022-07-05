@@ -1,12 +1,13 @@
 /.gradle
 /.idea
+/.vscode
 /bin
 /build
 /src/generated/*
+.terraform
 
-#streams rocksdb
+# streams rocksdb
 /*_state* 
-
 
 # ms-scaffolder ignores. DO NOT EDIT OR REMOVE.
 /.ms-scaffolder

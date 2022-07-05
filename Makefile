@@ -33,7 +33,6 @@ endif
 shapp: dockerbuild
 ifdef BUILD_IMAGE
 	docker run --rm -it \
-	-v "${CURDIR}":/app \
 	-v "${HOME}/.gitconfig":/etc/gitconfig \
 	-u ${CURRENT_UID}:${CURRENT_GID} \
 	${PROJECT_SLUG} \
@@ -105,7 +104,7 @@ build: dockerinit
 ifdef BUILD_IMAGE
 	docker run --rm -it \
 	-v "${CURDIR}":/app \
-	-v ~/.gitconfig:/etc/gitconfig \
+	-v "${HOME}/.gitconfig":/etc/gitconfig \
 	-u ${CURRENT_UID}:${CURRENT_GID} \
 	${BUILD_IMAGE} \
 	bash -c 'cd /app && ./scripts/ms-scaffolder/build.sh $(ARGS)'
@@ -133,7 +132,9 @@ endif
 
 run: dockerbuild
 ifdef BUILD_IMAGE
-	docker run --rm -it ${PROJECT_SLUG}
+	docker run --rm -it \
+	-v "${HOME}/.aws":/root/.aws \
+	${PROJECT_SLUG}
 else
 	$(error This command cannot be used until after running `make setup`)
 endif

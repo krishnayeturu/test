@@ -1,19 +1,20 @@
 include:
   - project: "2ndwatch/gitlab-ci"
-    ref: "v3.10.1"
+    ref: "v3.11.1"
     file: "/aws-access.yml"
   - project: '2ndwatch/gitlab-ci'
-    ref: 'v3.10.1'
+    ref: 'v3.11.1'
     file: '/gitlab-cr.yml'
   - project: "2ndwatch/gitlab-ci"
-    ref: "v3.10.1"
+    ref: "v3.11.1"
     file: "/helm.yml"
 
 variables:
   IMAGE_NAME: $CI_PROJECT_NAME
   BUILD_DIR: .
   BUILD_IMAGE: {{BUILD_IMAGE}}
-  CHART_PATH: ./deploy/helm/
+  CHART_PATH: ./deploy/helm
+  CHART_REPO: k8s-automation-service-charts
 
 stages:
   - build
