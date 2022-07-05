@@ -35,6 +35,7 @@ done
 # Collect parameters from user.
 echo "What is the hyphenated slug for your project? e.g., ms-api-commander-writer"
 read PROJECT_SLUG
+PROJECT_SLUG_NO_HYPHEN="${PROJECT_SLUG//-/}"
 
 # Copy template project to root directory and delete others.
 mv templates .ms-scaffolder-temp # In case there is a directory named "templates" in any of our template projects.
@@ -63,6 +64,7 @@ for FILE in **/*.template **/.*.template; do
     cp $FILE $NEW_FILE
 
     sed -e "s~{{PROJECT_SLUG}}~$PROJECT_SLUG~g" \
+        -e "s~{{PROJECT_SLUG_NO_HYPHEN}}~$PROJECT_SLUG_NO_HYPHEN~g" \
         -e "s~{{BUILD_IMAGE}}~$BUILD_IMAGE~g" \
         $FILE > $NEW_FILE
 
@@ -72,6 +74,11 @@ done
 # Add setup variables to .env file.
 echo "" >> .env # Ensure newline at end of .env
 echo "PROJECT_SLUG=$PROJECT_SLUG" >> .env
+echo "PROJECT_SLUG_NO_HYPHEN=$PROJECT_SLUG_NO_HYPHEN" >> .env
+
+# Run template-specific setup script.
+scripts/ms-scaffolder/template-setup.sh
+rm scripts/ms-scaffolder/template-setup.sh
 
 # Commit scaffolding changes.
 git add -A .
