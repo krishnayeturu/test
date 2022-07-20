@@ -1,11 +1,9 @@
-FROM openjdk:17-slim
+ARG BASE_IMAGE=openjdk:17-slim
+FROM $BASE_IMAGE
 
-ARG JARFILE=REPLACE_ME_USING_BUILD_ARG
-ENV JARFILE=$JARFILE
+COPY build/libs/main.jar /service/main.jar
+COPY .env /service/.env
 
-COPY build/libs/$JARFILE /app/$JARFILE
-COPY .env /app/.env
+WORKDIR /service
 
-WORKDIR /app
-
-CMD java -jar ${JARFILE}
+CMD java -jar main.jar

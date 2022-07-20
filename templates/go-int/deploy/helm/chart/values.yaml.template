@@ -1,7 +1,7 @@
 mslib:
   deployment:
     {{PROJECT_SLUG}}:
-      image: registry.gitlab.com/2ndwatch/microservices/commandlers/{{PROJECT_SLUG}}/{{PROJECT_SLUG}}
+      image: registry.gitlab.com/2ndwatch/microservices/integrations/{{PROJECT_SLUG}}/{{PROJECT_SLUG}}
       imageTag: 0
       imagePullPolicy: Always
       serviceAccountName: {{PROJECT_SLUG}}

@@ -7,6 +7,7 @@ including build processes, CI/CD, project structure, etc.
 # System Dependencies
 
 - `docker` >= 20.10.x
+- `git` >= 2.x
 - `make` >= 4.x
 
 # Usage
@@ -26,7 +27,7 @@ The `make setup` command performs several operations to set up the initial proje
 
 - It gathers any parameters it needs from you and replaces them where necessary throughout the
 project files.
-- It commits and pushes all of the changes it makes to your repository automatically.
+- It commits all of the changes it makes to your repository automatically.
 
 # Template Requirements
 - .env file specifying BUILD_IMAGE
