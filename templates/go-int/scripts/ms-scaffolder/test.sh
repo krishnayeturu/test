@@ -10,6 +10,6 @@ fi
 source $PROJECT_DIR/.env
 
 # Call build script.
-. $SCRIPT_DIR/build.sh
+$SCRIPT_DIR/build.sh
 
-gradle test -DrootProjectName=$PROJECT_SLUG --no-daemon --gradle-user-home=/app/.gradle
+go test --test.short -race $PROJECT_DIR/...

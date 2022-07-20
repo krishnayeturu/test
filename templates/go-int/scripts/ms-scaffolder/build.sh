@@ -9,7 +9,8 @@ if [ ! -f "$PROJECT_DIR/.env" ]; then
 fi
 source $PROJECT_DIR/.env
 
-# Call build script.
-. $SCRIPT_DIR/build.sh
+# Call protogen script
+$SCRIPT_DIR/protogen.sh
 
-gradle test -DrootProjectName=$PROJECT_SLUG --no-daemon --gradle-user-home=/app/.gradle
+mkdir -p $PROJECT_DIR/build
+CGO_ENABLED=0 go build -o $PROJECT_DIR/build/main $PROJECT_DIR/cmd

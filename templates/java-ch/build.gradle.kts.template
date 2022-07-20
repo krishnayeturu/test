@@ -48,9 +48,9 @@ tasks.getByName<Jar>("jar") {
 }
 
 tasks.withType<ShadowJar> {
-    archiveFileName.set(System.getProperty("rootProjectName") + ".jar")
+    archiveFileName.set("main.jar")
     manifest {
-        attributes["Main-Class"] = "com._2ndwatch.{{PROJECT_SLUG}}.Main"
+        attributes["Main-Class"] = "com._2ndwatch.{{PROJECT_SLUG_NO_HYPHEN}}.Main"
     }
 }
 
