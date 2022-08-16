@@ -12,4 +12,4 @@ source $PROJECT_DIR/.env
 # Call protogen script
 . $SCRIPT_DIR/protogen.sh
 
-gradle build -DrootProjectName=$PROJECT_SLUG --no-daemon --gradle-user-home=/app/.gradle
+gradle build -x test -DrootProjectName=$PROJECT_SLUG --no-daemon --gradle-user-home=/gradle

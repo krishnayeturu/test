@@ -12,4 +12,4 @@ source $PROJECT_DIR/.env
 # Call build script.
 . $SCRIPT_DIR/build.sh
 
-gradle test -DrootProjectName=$PROJECT_SLUG --no-daemon --gradle-user-home=/app/.gradle
+gradle test -DrootProjectName=$PROJECT_SLUG --no-daemon --gradle-user-home=/gradle
