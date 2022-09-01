@@ -1,6 +1,6 @@
 apiVersion: v2
 description: Java Commandler microservice for platform automation.
-name: {{PROJECT_SLUG}}
+name: ms-wrkr-admissions-service
 version: 0.0.1
 
 dependencies:

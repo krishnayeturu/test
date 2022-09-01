@@ -1,3 +1,0 @@
-module gitlab.com/2ndwatch/microservices/integrations/{{PROJECT_SLUG}}
-
-go 1.18

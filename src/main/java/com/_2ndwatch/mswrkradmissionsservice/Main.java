@@ -1,4 +1,4 @@
-package com._2ndwatch.{{PROJECT_SLUG_NO_HYPHEN}};
+package com._2ndwatch.mswrkradmissionsservice;
 
 public class Main {
     public static void main(String[] args) {

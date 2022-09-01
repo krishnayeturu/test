@@ -1,0 +1,12 @@
+mslib:
+  deployment:
+    ms-wrkr-admissions-service:
+      image: registry.gitlab.com/2ndwatch/microservices/commandlers/ms-wrkr-admissions-service/ms-wrkr-admissions-service
+      imageTag: 0
+      imagePullPolicy: Always
+      serviceAccountName: ms-wrkr-admissions-service
+
+  serviceAccount:
+    ms-wrkr-admissions-service:
+      annotations:
+        eks.amazonaws.com/role-arn: REPLACE

@@ -48,7 +48,7 @@ tasks.getByName<Jar>("jar") {
 tasks.withType<ShadowJar> {
     archiveFileName.set("main.jar")
     manifest {
-        attributes["Main-Class"] = "com._2ndwatch.{{PROJECT_SLUG_NO_HYPHEN}}.Main"
+        attributes["Main-Class"] = "com._2ndwatch.mswrkradmissionsservice.Main"
     }
 }
 
