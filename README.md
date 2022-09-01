@@ -1,4 +1,4 @@
-# ms-wrkr-admissions-service - Java Commandler
+# ms-admissions-service - Admissions Service Aggregate Repo
 
 This project was initialized using the [ms-scaffolder repository template](https://gitlab.com/2ndwatch/microservices/templates/ms-scaffolder). Please see README-Makefile.md for Makefile command information.
 
