@@ -8,9 +8,9 @@
 .env
 
 # streams rocksdb
-/*_state* 
+/*_state*
 
 # ms-scaffolder ignores. DO NOT EDIT OR REMOVE.
 /.ms-scaffolder
-Makefile
+# Makefile
 README-Makefile.md
