@@ -1,0 +1,74 @@
+include:
+  - project: "2ndwatch/gitlab-ci"
+    ref: "v3.11.2"
+    file: "/aws-access.yml"
+  - project: '2ndwatch/gitlab-ci'
+    ref: 'v3.11.2'
+    file: '/gitlab-cr.yml'
+  - project: "2ndwatch/gitlab-ci"
+    ref: "v3.11.2"
+    file: "/helm.yml"
+
+variables:
+  IMAGE_NAME: $CI_PROJECT_NAME
+  BUILD_DIR: .
+  BUILD_IMAGE: {{BUILD_IMAGE}}
+  CHART_PATH: ./deploy/helm
+  CHART_REPO: k8s-automation-service-charts
+
+stages:
+  - build
+  - push
+
+test:
+  stage: build
+  image: $BUILD_IMAGE
+  script:
+    - ./scripts/ms-scaffolder/test.sh
+
+build:
+  stage: build
+  image: $BUILD_IMAGE
+  script:
+    - ./scripts/ms-scaffolder/build.sh
+  artifacts:
+    paths:
+      - build/
+      - .env
+
+push-dev:
+  stage: push
+  extends: .gitlab-cr-push-dev
+
+push-prod:
+  stage: push
+  extends: .gitlab-cr-push-prod
+
+helm-lint:
+  variables:
+    HELM_LINT_ARGS: "--with-subcharts"
+  stage: build
+  extends: .helm-lint
+
+helm-version:
+  stage: build
+  extends: .helm-version
+
+helm-e2e:
+  stage: build
+  extends: .helm-e2e
+
+helm-e2e-all:
+  stage: build
+  variables:
+    MODIFIED_ONLY: "false"
+  when: manual
+  extends: .helm-e2e
+
+helm-validate-dev:
+  stage: build
+  extends: .helm-validate-chart-dev
+
+helm-validate-prod:
+  stage: build
+  extends: .helm-validate-chart-prod

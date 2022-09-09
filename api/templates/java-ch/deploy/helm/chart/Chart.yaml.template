@@ -1,0 +1,9 @@
+apiVersion: v2
+description: Java Commandler microservice for platform automation.
+name: {{PROJECT_SLUG}}
+version: 0.0.1
+
+dependencies:
+  - name: microservice-library
+    version: ~1
+    repository: "@k8s-automation-service-charts"
