@@ -2,9 +2,9 @@ syntax = "proto3";
 
 package com._2ndwatch.commander.v1;
 
-option go_package = "gitlab.com/2ndwatch/genproto/ms-apis/commander;commander";
+option go_package = "gitlab.com/2ndwatch/microservices/integrations/ms-admissions-api/pkg/pb/commander;commander";
 option java_multiple_files = true;
-option java_package = "com._2ndwatch.commander";
+option java_package = "com.com._2ndwatch.commander";
 option java_outer_classname = "CommanderProto";
 
 import "type/uuid.proto";

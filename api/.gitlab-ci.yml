@@ -1,40 +1,78 @@
+include:
+  - project: "2ndwatch/gitlab-ci"
+    ref: "v3.11.2"
+    file: "/aws-access.yml"
+  - project: '2ndwatch/gitlab-ci'
+    ref: 'v3.11.2'
+    file: '/gitlab-cr.yml'
+  - project: "2ndwatch/gitlab-ci"
+    ref: "v3.11.2"
+    file: "/helm.yml"
+
+variables:
+  IMAGE_NAME: $CI_PROJECT_NAME
+  BUILD_DIR: ./
+  BUILD_IMAGE: registry.gitlab.com/2ndwatch/docker-images/go-build/go-build:golang-1.18-0
+  CHART_PATH: ./deploy/helm
+  CHART_REPO: k8s-automation-service-charts
+
 stages:
   - build
+  - push
 
-.build:
+helm-lint:
+  variables:
+    HELM_LINT_ARGS: "--with-subcharts"
   stage: build
-  image: docker:20.10.16
-  services:
-  - alias: docker
-    name: registry.gitlab.com/2ndwatch/docker-images/dind/dind:v1.0.3
+  extends: .helm-lint
+
+helm-version:
+  stage: build
+  extends: .helm-version
+
+helm-e2e:
+  stage: build
+  extends: .helm-e2e
+
+helm-e2e-all:
+  stage: build
   variables:
-    DOCKER_HOST: tcp://docker:2376
-    DOCKER_TLS_CERTDIR: /certs
-    DOCKER_CERT_PATH: /certs/client
-    DOCKER_TLS_VERIFY: 1
-  before_script:
-    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    MODIFIED_ONLY: "false"
+  when: manual
+  extends: .helm-e2e
+
+helm-validate-dev:
+  stage: build
+  extends: .helm-validate-chart-dev
+
+helm-validate-prod:
+  stage: build
+  extends: .helm-validate-chart-prod
+
+build:
+  stage: build
+  image: $BUILD_IMAGE
   script:
-    - apk add --no-cache --upgrade git make tree
-    - git config --global user.email productengineeringaccounts@2ndwatch.com
-    - git config --global user.name 'Git Lab'
-    - tree $HOME
-    - ls -al $HOME
-    - make setup ARGS="$TEMPLATE $CI_PROJECT_NAME" DOCKER_FLAGS=""
-    - make run DOCKER_FLAGS="" | tee output.txt
-    - |
-      if [ "$(tail -n 1 output.txt)" != "Hello, world!" ]; then
-        echo "Build failed. Output of app after performing `make run` was not 'Hello, world!'"
-        tree .
-        cat output.txt
-      fi
+    - ./scripts/ms-scaffolder/build.sh
+  artifacts:
+    paths:
+      - build/
+      - .env
 
-build-go-int:
-  extends: .build
-  variables:
-    TEMPLATE: go-int
+test:
+  stage: build
+  image: $BUILD_IMAGE
+  script:
+    - ./scripts/ms-scaffolder/test.sh
 
-build-java-ch:
-  extends: .build
-  variables:
-    TEMPLATE: java-ch
+push-dev:
+  stage: push
+  extends: .gitlab-cr-push-dev
+
+push-prod:
+  stage: push
+  extends: .gitlab-cr-push-prod
+
+helm-push:
+  stage: push
+  extends: .helm-push-chart
