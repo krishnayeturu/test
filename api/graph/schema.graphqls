@@ -2,27 +2,53 @@
 #
 # https://gqlgen.com/getting-started/
 
-type Todo {
-  id: ID!
-  text: String!
-  done: Boolean!
-  user: User!
+schema {
+  query: Query
+  mutation: Mutation
 }
 
-type User {
+enum Effect {
+  ALLOW
+  DENY
+}
+
+enum AdmissionPolicyType {
+  AWSIAMRole
+  AzureServicePrincipal
+  Credential
+}
+
+type AdmissionPolicy {
   id: ID!
-  name: String!
+  name: String
+  effect: Effect
+  principal: [String]!
+  actions: [String]!
+  resources: [String]!
+}
+
+input AdmissionPolicyInput {
+  id: String
+  effect: Effect
+  principal: [String]!
+  actions: [String]!
+  resources: [String]!
+}
+
+type PrincipalAdmissionPolicy {
+  principal: String!
+  admissionPolicy: [AdmissionPolicy]
 }
 
 type Query {
   todos: [Todo!]!
-}
-
-input NewTodo {
-  text: String!
-  userId: String!
+  admissionPolicies(principal: String!): [AdmissionPolicy]
+  admissionPolicies(principal: String!, policyType: AdmissionPolicyType!): [AdmissionPolicy]
 }
 
 type Mutation {
   createTodo(input: NewTodo!): Todo!
+  upsertAdmissionPolicy(admissionPolicy: AdmissionPolicyInput!): AdmissionPolicy
+  deleteAdmissionPolicy(admissionPolicy: AdmissionPolicyInput!): boolean
 }
+
