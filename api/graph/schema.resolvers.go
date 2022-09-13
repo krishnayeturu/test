@@ -41,6 +41,16 @@ func (r *mutationResolver) CreateTodo(ctx context.Context, input model.NewTodo) 
 	return todo, nil
 }
 
+// Login is the resolver for the login field.
+func (r *mutationResolver) Login(ctx context.Context, input model.Login) (string, error) {
+	panic(fmt.Errorf("not implemented: Login - login"))
+}
+
+// RefreshToken is the resolver for the refreshToken field.
+func (r *mutationResolver) RefreshToken(ctx context.Context, input model.RefreshTokenInput) (string, error) {
+	panic(fmt.Errorf("not implemented: RefreshToken - refreshToken"))
+}
+
 // AdmissionPolicies is the resolver for the admissionPolicies field.
 func (r *queryResolver) AdmissionPolicies(ctx context.Context, principal string, policyType *model.AdmissionPolicyType, policyName *string) ([]*model.AdmissionPolicy, error) {
 	panic(fmt.Errorf("not implemented: AdmissionPolicies - admissionPolicies"))
