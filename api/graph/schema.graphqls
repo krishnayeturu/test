@@ -40,15 +40,31 @@ type PrincipalAdmissionPolicy {
 }
 
 type Query {
-  # todos: [Todo!]!
-  admissionPolicies(principal: String!): [AdmissionPolicy]
-  admissionPolicies(principal: String!, policyType: AdmissionPolicyType!): [AdmissionPolicy]
-  admissionPolicies(principal: String!, policyName: String!): [AdmissionPolicy]
+  admissionPolicies(principal: String!, policyType: AdmissionPolicyType, policyName: String): [AdmissionPolicy]
+  todos: [Todo!]!
 }
 
 type Mutation {
-  # createTodo(input: NewTodo!): Todo!
   createAdmissionPolicy(admissionPolicy: AdmissionPolicyInput!): AdmissionPolicy
   updateAdmissionPolicy(admissionPolicy: AdmissionPolicyInput!): AdmissionPolicy
-  deleteAdmissionPolicy(admissionPolicy: AdmissionPolicyInput!): boolean
+  deleteAdmissionPolicy(admissionPolicy: AdmissionPolicyInput!): Boolean
+  createTodo(input: NewTodo!): Todo!
+}
+
+# original generated model schema below
+type Todo {
+  id: ID!
+  text: String!
+  done: Boolean!
+  user: User!
+}
+
+type User {
+  id: ID!
+  name: String!
+}
+
+input NewTodo {
+  text: String!
+  userId: String!
 }
