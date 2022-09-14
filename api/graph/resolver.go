@@ -7,5 +7,7 @@ import "gitlab.com/2ndwatch/microservices/ms-admissions-service/ms-admissions-ap
 //
 // It serves as dependency injection for your app, add any dependencies you require here.
 type Resolver struct {
-	todos []*model.Todo
+	todos                      []*model.Todo
+	admissionPolicies          []*model.AdmissionPolicy
+	principalAdmissionPolicies []*model.PrincipalAdmissionPolicy
 }

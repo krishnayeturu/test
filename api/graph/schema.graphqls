@@ -40,8 +40,9 @@ type PrincipalAdmissionPolicy {
 }
 
 type Query {
-  admissionPolicies(principal: String!, policyType: AdmissionPolicyType, policyName: String): [AdmissionPolicy]
+  admissionPolicies(principal: String!, policyType: AdmissionPolicyType, policyName: String): [AdmissionPolicy]!
   todos: [Todo!]!
+  principalAdmissionPolicies: [PrincipalAdmissionPolicy]!
 }
 
 type Mutation {
@@ -49,9 +50,6 @@ type Mutation {
   updateAdmissionPolicy(admissionPolicy: AdmissionPolicyInput!): AdmissionPolicy
   deleteAdmissionPolicy(admissionPolicy: AdmissionPolicyInput!): Boolean
   createTodo(input: NewTodo!): Todo!
-  login(input: Login!): String!
-  # we'll talk about this in authentication section
-  refreshToken(input: RefreshTokenInput!): String!
 }
 
 # original generated model schema below
@@ -69,14 +67,5 @@ type User {
 
 input NewTodo {
   text: String!
-  userId: String!
-}
-
-input RefreshTokenInput{
-  token: String!
-}
-
-input Login {
-  username: String!
-  password: String!
+  userID: String!
 }

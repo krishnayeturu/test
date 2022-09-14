@@ -65,3 +65,6 @@ models:
     fields:
       user:
         resolver: true
+  # AdmissionPolicy:
+  #   model: gitlab.com/2ndwatch/microservices/ms-admissions-service/ms-admissions-api/graph/model.AdmissionPolicy
+

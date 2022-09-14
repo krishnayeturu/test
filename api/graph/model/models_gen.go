@@ -26,23 +26,14 @@ type AdmissionPolicyInput struct {
 	Resources []*string `json:"resources"`
 }
 
-type Login struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
-}
-
 type NewTodo struct {
 	Text   string `json:"text"`
-	UserID string `json:"userId"`
+	UserID string `json:"userID"`
 }
 
 type PrincipalAdmissionPolicy struct {
 	Principal       string             `json:"principal"`
 	AdmissionPolicy []*AdmissionPolicy `json:"admissionPolicy"`
-}
-
-type RefreshTokenInput struct {
-	Token string `json:"token"`
 }
 
 type User struct {
