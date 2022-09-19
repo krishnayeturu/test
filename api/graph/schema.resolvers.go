@@ -15,17 +15,57 @@ import (
 
 // CreateAdmissionPolicy is the resolver for the createAdmissionPolicy field.
 func (r *mutationResolver) CreateAdmissionPolicy(ctx context.Context, admissionPolicy model.AdmissionPolicyInput) (*model.AdmissionPolicy, error) {
-	panic(fmt.Errorf("not implemented: CreateAdmissionPolicy - createAdmissionPolicy"))
+	uuid := strings.Replace(uuid.New().String(), "-", "", -1)
+
+	createdAdmissionPolicy := &model.AdmissionPolicy{
+		ID:        uuid,
+		Name:      admissionPolicy.Name,
+		Effect:    admissionPolicy.Effect,
+		Type:      admissionPolicy.Type,
+		Principal: append([]*string{}, admissionPolicy.Principal...),
+		Actions:   append([]*string{}, admissionPolicy.Actions...),
+		Resources: append([]*string{}, admissionPolicy.Resources...),
+	}
+	// Do database inserts here
+	r.admissionPolicies = append(r.admissionPolicies, createdAdmissionPolicy)
+	return createdAdmissionPolicy, nil
 }
 
 // UpdateAdmissionPolicy is the resolver for the updateAdmissionPolicy field.
-func (r *mutationResolver) UpdateAdmissionPolicy(ctx context.Context, admissionPolicy model.AdmissionPolicyInput) (*model.AdmissionPolicy, error) {
-	panic(fmt.Errorf("not implemented: UpdateAdmissionPolicy - updateAdmissionPolicy"))
+func (r *mutationResolver) UpdateAdmissionPolicy(ctx context.Context, id string, admissionPolicy model.AdmissionPolicyInput) (*model.AdmissionPolicy, error) {
+	_, err := uuid.Parse(id)
+
+	if err != nil {
+		return nil, fmt.Errorf("invalid admission policy identifier: %s", id)
+	}
+	// _, err := r.AdmissionPolicy.Update(id, admissionPolicy.)
+	updatedAdmissionPolicy := &model.AdmissionPolicy{
+		Name:      admissionPolicy.Name,
+		Effect:    admissionPolicy.Effect,
+		Type:      admissionPolicy.Type,
+		Principal: append([]*string{}, admissionPolicy.Principal...),
+		Actions:   append([]*string{}, admissionPolicy.Actions...),
+		Resources: append([]*string{}, admissionPolicy.Resources...),
+	}
+	// Make Commander API call for updates here, this is temporary for example
+	r.admissionPolicies = append(r.admissionPolicies, updatedAdmissionPolicy)
+	return updatedAdmissionPolicy, nil
 }
 
 // DeleteAdmissionPolicy is the resolver for the deleteAdmissionPolicy field.
 func (r *mutationResolver) DeleteAdmissionPolicy(ctx context.Context, admissionPolicy model.AdmissionPolicyInput) (*bool, error) {
-	panic(fmt.Errorf("not implemented: DeleteAdmissionPolicy - deleteAdmissionPolicy"))
+	// The below logic will be replaced with Commander API call for deletes here, this is temporary for example
+	var admissionPolicies = []*model.AdmissionPolicy{}
+	var deleted = false
+	for i := 0; i < len(r.admissionPolicies); i++ {
+		if r.admissionPolicies[i].ID != *admissionPolicy.ID {
+			admissionPolicies = append(admissionPolicies, r.admissionPolicies[i])
+		} else {
+			deleted = true
+		}
+	}
+	r.admissionPolicies = admissionPolicies
+	return &deleted, nil
 }
 
 // CreateTodo is the resolver for the createTodo field.
@@ -45,10 +85,27 @@ func (r *mutationResolver) CreateTodo(ctx context.Context, input model.NewTodo) 
 func (r *queryResolver) AdmissionPolicies(ctx context.Context, principal string, policyType *model.AdmissionPolicyType, policyName *string) ([]*model.AdmissionPolicy, error) {
 	if principal != "" { // filter for admission policies w/ principals matching the provided principal string
 		ret := []*model.AdmissionPolicy{}
+
 		for index := range r.admissionPolicies {
 			for xindex := range r.admissionPolicies[index].Principal {
 				if *r.admissionPolicies[index].Principal[xindex] == principal {
-					ret = append(ret, r.admissionPolicies[index])
+					if policyName == nil && policyType == nil { // no additional filtering needed
+						ret = append(ret, r.admissionPolicies[index])
+					} else {
+						if policyName != nil && policyType == nil { // filter for matching policyName only
+							if r.admissionPolicies[index].Name == *policyName {
+								ret = append(ret, r.admissionPolicies[index])
+							}
+						} else if policyType != nil && policyName == nil { // filter for matching policyType only
+							if *r.admissionPolicies[index].Type == *policyType {
+								ret = append(ret, r.admissionPolicies[index])
+							}
+						} else { // filter for matching policyName and matching policyType
+							if r.admissionPolicies[index].Name == *policyName && *r.admissionPolicies[index].Type == *policyType {
+								ret = append(ret, r.admissionPolicies[index])
+							}
+						}
+					}
 				}
 			}
 		}

@@ -20,6 +20,7 @@ type AdmissionPolicy {
   id: ID!
   name: String!
   effect: Effect
+  type: AdmissionPolicyType
   principal: [String]! # list of PARNs representing various principals - parn:user:::myusername, credential.prod-eng.2nd.watch, etc
   actions: [String]! # credential:Read, credential:Write, admissionPolicy:Read, etc
   resources: [String]! # identifier for what you have access to records-wise -- allow for wildcard - parn:credential:::my-credential-name, parn:user:::some-user-name, etc
@@ -29,6 +30,7 @@ input AdmissionPolicyInput {
   id: String
   name: String!
   effect: Effect
+  type: AdmissionPolicyType
   principal: [String]! # list of PARNs representing various principals - parn:user:::myusername, credential.prod-eng.2nd.watch, etc
   actions: [String]! # credential:Read, credential:Write, admissionPolicy:Read, etc
   resources: [String]! # identifier for what you have access to records-wise -- allow for wildcard - parn:credential:::my-credential-name, parn:user:::some-user-name, etc
@@ -47,7 +49,7 @@ type Query {
 
 type Mutation {
   createAdmissionPolicy(admissionPolicy: AdmissionPolicyInput!): AdmissionPolicy
-  updateAdmissionPolicy(admissionPolicy: AdmissionPolicyInput!): AdmissionPolicy
+  updateAdmissionPolicy(id: String!, admissionPolicy: AdmissionPolicyInput!): AdmissionPolicy
   deleteAdmissionPolicy(admissionPolicy: AdmissionPolicyInput!): Boolean
   createTodo(input: NewTodo!): Todo!
 }
