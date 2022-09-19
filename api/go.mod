@@ -3,7 +3,7 @@ module gitlab.com/2ndwatch/microservices/ms-admissions-service/ms-admissions-api
 go 1.17
 
 require (
-	github.com/99designs/gqlgen v0.17.19
+	github.com/99designs/gqlgen v0.17.20
 	github.com/aws/aws-sdk-go-v2 v1.16.15
 	github.com/aws/aws-sdk-go-v2/config v1.17.6
 	github.com/aws/aws-sdk-go-v2/credentials v1.12.19

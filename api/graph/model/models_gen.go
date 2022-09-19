@@ -9,21 +9,23 @@ import (
 )
 
 type AdmissionPolicy struct {
-	ID        string    `json:"id"`
-	Name      string    `json:"name"`
-	Effect    *Effect   `json:"effect"`
-	Principal []*string `json:"principal"`
-	Actions   []*string `json:"actions"`
-	Resources []*string `json:"resources"`
+	ID        string               `json:"id"`
+	Name      string               `json:"name"`
+	Effect    *Effect              `json:"effect"`
+	Type      *AdmissionPolicyType `json:"type"`
+	Principal []*string            `json:"principal"`
+	Actions   []*string            `json:"actions"`
+	Resources []*string            `json:"resources"`
 }
 
 type AdmissionPolicyInput struct {
-	ID        *string   `json:"id"`
-	Name      string    `json:"name"`
-	Effect    *Effect   `json:"effect"`
-	Principal []*string `json:"principal"`
-	Actions   []*string `json:"actions"`
-	Resources []*string `json:"resources"`
+	ID        *string              `json:"id"`
+	Name      string               `json:"name"`
+	Effect    *Effect              `json:"effect"`
+	Type      *AdmissionPolicyType `json:"type"`
+	Principal []*string            `json:"principal"`
+	Actions   []*string            `json:"actions"`
+	Resources []*string            `json:"resources"`
 }
 
 type NewTodo struct {
