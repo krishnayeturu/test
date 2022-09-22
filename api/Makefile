@@ -168,4 +168,11 @@ else
 	$(error This command cannot be used until after running `make setup`)
 endif
 
-.PHONY: build dockerbuild dockerbuilddebug dockerinit protogen run setup shbuilder shrunner shservice test update
+gqlinit:
+	go get github.com/99designs/gqlgen \
+	&& go run github.com/99designs/gqlgen generate
+
+gqlrun: gqlinit
+	go run server.go
+
+.PHONY: build dockerbuild dockerbuilddebug dockerinit protogen run setup shbuilder shrunner shservice test update gqlrun gqlinit
