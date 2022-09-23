@@ -9,16 +9,17 @@ import (
 	"strings"
 
 	"github.com/google/uuid"
+	"gitlab.com/2ndwatch/microservices/ms-admissions-service/ms-admissions-api/apiclient/apiclient"
 	"gitlab.com/2ndwatch/microservices/ms-admissions-service/ms-admissions-api/graph/generated"
 	"gitlab.com/2ndwatch/microservices/ms-admissions-service/ms-admissions-api/graph/model"
 )
 
 // CreateAdmissionPolicy is the resolver for the createAdmissionPolicy field.
 func (r *mutationResolver) CreateAdmissionPolicy(ctx context.Context, admissionPolicy model.AdmissionPolicyInput) (*model.AdmissionPolicy, error) {
-	uuid := strings.Replace(uuid.New().String(), "-", "", -1)
+	policyUuid := strings.Replace(uuid.New().String(), "-", "", -1)
 
 	createdAdmissionPolicy := &model.AdmissionPolicy{
-		ID:        uuid,
+		ID:        policyUuid,
 		Name:      admissionPolicy.Name,
 		Effect:    admissionPolicy.Effect,
 		Type:      admissionPolicy.Type,
@@ -28,53 +29,112 @@ func (r *mutationResolver) CreateAdmissionPolicy(ctx context.Context, admissionP
 	}
 	// TODO: Send marshalled JSON object to Commander API for database inserts here
 	r.admissionPolicies = append(r.admissionPolicies, createdAdmissionPolicy)
+	messageData := CommanderMessage{
+		Action: "CreateAdmissionPolicy",
+		Data: CommanderMessageData{
+			MessageUUID: strings.Replace(uuid.New().String(), "-", "", -1),
+			DataBlob:     *createdAdmissionPolicy,
+			CommandName: "CreateAdmissionPolicy" // may not need this
+		},
+	}
+	_, err = apiClient.MakeApiRequest(messageData, "POST")
+	if err != nil {
+		return fmt.Errorf("encountered an error while trying to POST object: %v", err)
+	}
+
+	fmt.Printf("Successfully submitted POST request for object %s", data)
 	return createdAdmissionPolicy, nil
 }
 
-// AddAdmissionPolicyAction is the resolver for the addAdmissionPolicyAction field.
-func (r *mutationResolver) AddAdmissionPolicyAction(ctx context.Context, id string, admissionPolicy model.AdmissionPolicyInput) (*model.AdmissionPolicy, error) {
-	panic(fmt.Errorf("not implemented: AddAdmissionPolicyAction - addAdmissionPolicyAction"))
+// UpdateAdmissionPolicyActions is the resolver for the updateAdmissionPolicyActions field.
+func (r *mutationResolver) UpdateAdmissionPolicyActions(ctx context.Context, id string, admissionPolicyActions []*string) (*model.AdmissionPolicy, error) {
+	updateAdmissionPolicyActionsModel := &model.UpdateAdmissionPolicyActions{
+		ID: id,
+		Actions: admissionPolicyActions,
+	}
+	messageData := CommanderMessage{
+		Action: "UpdateAdmissionPolicyActions",
+		Data: CommanderMessageData{
+			MessageUUID: strings.Replace(uuid.New().String(), "-", "", -1),
+			DataBlob:     *updateAdmissionPolicyActionsModel,
+			CommandName: "UpdateAdmissionPolicyActions", // may not need this
+		},
+	}
+	_, err = apiClient.MakeApiRequest(messageData, "PUT")
+	if err != nil {
+		return fmt.Errorf("encountered an error while trying to PUT object: %v", err)
+	}
+
+	fmt.Printf("Successfully submitted PUT request for object %s", data)
+	return updateAdmissionPolicyActionsModel, nil
 }
 
-// DeleteAdmissionPolicyAction is the resolver for the deleteAdmissionPolicyAction field.
-func (r *mutationResolver) DeleteAdmissionPolicyAction(ctx context.Context, id string, admissionPolicy model.AdmissionPolicyInput) (*model.AdmissionPolicy, error) {
-	panic(fmt.Errorf("not implemented: DeleteAdmissionPolicyAction - deleteAdmissionPolicyAction"))
+// UpdateAdmissionPolicyPrincipals is the resolver for the updateAdmissionPolicyPrincipals field.
+func (r *mutationResolver) UpdateAdmissionPolicyPrincipals(ctx context.Context, id string, admissionPolicyPrincipals []*string) (*model.AdmissionPolicy, error) {
+	updateAdmissionPolicyPrincipalsModel := &model.UpdateAdmissionPolicyPrincipals{
+		ID: id,
+		Principals: admissionPolicyPrincipals,
+	}
+	messageData := CommanderMessage{
+		Action: "UpdateAdmissionPolicyPrincipals",
+		Data: CommanderMessageData{
+			MessageUUID: strings.Replace(uuid.New().String(), "-", "", -1),
+			DataBlob:     *updateAdmissionPolicyPrincipalsModel,
+			CommandName: "UpdateAdmissionPolicyPrincipals", // may not need this
+		},
+	}
+	_, err = apiClient.MakeApiRequest(messageData, "PUT")
+	if err != nil {
+		return fmt.Errorf("encountered an error while trying to PUT object: %v", err)
+	}
+
+	fmt.Printf("Successfully submitted PUT request for object %s", data)
+	return updateAdmissionPolicyPrincipalsModel, nil
 }
 
-// AddAdmissionPolicyPrincipal is the resolver for the addAdmissionPolicyPrincipal field.
-func (r *mutationResolver) AddAdmissionPolicyPrincipal(ctx context.Context, id string, admissionPolicy model.AdmissionPolicyInput) (*model.AdmissionPolicy, error) {
-	panic(fmt.Errorf("not implemented: AddAdmissionPolicyPrincipal - addAdmissionPolicyPrincipal"))
-}
+// UpdateAdmissionPolicyResources is the resolver for the updateAdmissionPolicyResources field.
+func (r *mutationResolver) UpdateAdmissionPolicyResources(ctx context.Context, id string, admissionPolicyResources []*string) (*model.AdmissionPolicy, error) {
+	updateAdmissionPolicyResourcesModel := &model.UpdateAdmissionPolicyResources{
+		ID: id,
+		Resources: admissionPolicyResources,
+	}
+	messageData := CommanderMessage{
+		Action: "UpdateAdmissionPolicyResources",
+		Data: CommanderMessageData{
+			MessageUUID: strings.Replace(uuid.New().String(), "-", "", -1),
+			DataBlob:     *updateAdmissionPolicyResourcesModel,
+			CommandName: "UpdateAdmissionPolicyResources", // may not need this
+		},
+	}
+	_, err = apiClient.MakeApiRequest(messageData, "PUT")
+	if err != nil {
+		return fmt.Errorf("encountered an error while trying to PUT object: %v", err)
+	}
 
-// DeleeteAdmissionPolicyPrincipal is the resolver for the deleeteAdmissionPolicyPrincipal field.
-func (r *mutationResolver) DeleeteAdmissionPolicyPrincipal(ctx context.Context, id string, admissionPolicy model.AdmissionPolicyInput) (*model.AdmissionPolicy, error) {
-	panic(fmt.Errorf("not implemented: DeleeteAdmissionPolicyPrincipal - deleeteAdmissionPolicyPrincipal"))
-}
-
-// AddAdmissionPolicyResource is the resolver for the addAdmissionPolicyResource field.
-func (r *mutationResolver) AddAdmissionPolicyResource(ctx context.Context, id string, admissionPolicy model.AdmissionPolicyInput) (*model.AdmissionPolicy, error) {
-	panic(fmt.Errorf("not implemented: AddAdmissionPolicyResource - addAdmissionPolicyResource"))
-}
-
-// DeleteAdmissionPolicyResource is the resolver for the deleteAdmissionPolicyResource field.
-func (r *mutationResolver) DeleteAdmissionPolicyResource(ctx context.Context, id string, admissionPolicy model.AdmissionPolicyInput) (*model.AdmissionPolicy, error) {
-	panic(fmt.Errorf("not implemented: DeleteAdmissionPolicyResource - deleteAdmissionPolicyResource"))
+	fmt.Printf("Successfully submitted PUT request for object %s", data)
+	return updateAdmissionPolicyResourcesModel, nil
 }
 
 // DeleteAdmissionPolicy is the resolver for the deleteAdmissionPolicy field.
-func (r *mutationResolver) DeleteAdmissionPolicy(ctx context.Context, admissionPolicy model.AdmissionPolicyInput) (*bool, error) {
+func (r *mutationResolver) DeleteAdmissionPolicy(ctx context.Context, id string) (*bool, error) {
 	// The below logic will be replaced with Commander API call for deletes here, this is temporary for example
 	// TODO: Send marshalled JSON object to Commander API for database deletes below here
-	var admissionPolicies = []*model.AdmissionPolicy{}
 	var deleted = false
-	for i := 0; i < len(r.admissionPolicies); i++ {
-		if r.admissionPolicies[i].ID != *admissionPolicy.ID {
-			admissionPolicies = append(admissionPolicies, r.admissionPolicies[i])
-		} else {
-			deleted = true
-		}
+	messageData := CommanderMessage{
+		Action: "DeleteAdmissionPolicy",
+		Data: CommanderMessageData{
+			MessageUUID: strings.Replace(uuid.New().String(), "-", "", -1),
+			DataBlob:     *id,
+			CommandName: "DeleteAdmissionPolicy", // may not need this
+		},
 	}
-	r.admissionPolicies = admissionPolicies
+	_, err = apiClient.MakeApiRequest(messageData, "DELETE")
+	if err != nil {
+		return fmt.Errorf("encountered an error while trying to DELETE object: %v", err)
+	}
+	deleted = true
+
+	fmt.Printf("Successfully submitted DELETE request for object %s", data)
 	return &deleted, nil
 }
 
@@ -152,29 +212,3 @@ func (r *Resolver) Todo() generated.TodoResolver { return &todoResolver{r} }
 type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
 type todoResolver struct{ *Resolver }
-
-// !!! WARNING !!!
-// The code below was going to be deleted when updating resolvers. It has been copied here so you have
-// one last chance to move it out of harms way if you want. There are two reasons this happens:
-//  - When renaming or deleting a resolver the old code will be put in here. You can safely delete
-//    it when you're done.
-//  - You have helper methods in this file. Move them out to keep these resolver files clean.
-func (r *mutationResolver) UpdateAdmissionPolicy(ctx context.Context, id string, admissionPolicy model.AdmissionPolicyInput) (*model.AdmissionPolicy, error) {
-	_, err := uuid.Parse(id)
-
-	if err != nil {
-		return nil, fmt.Errorf("invalid admission policy identifier: %s", id)
-	}
-	// _, err := r.AdmissionPolicy.Update(id, admissionPolicy.)
-	updatedAdmissionPolicy := &model.AdmissionPolicy{
-		Name:      admissionPolicy.Name,
-		Effect:    admissionPolicy.Effect,
-		Type:      admissionPolicy.Type,
-		Principal: append([]*string{}, admissionPolicy.Principal...),
-		Actions:   append([]*string{}, admissionPolicy.Actions...),
-		Resources: append([]*string{}, admissionPolicy.Resources...),
-	}
-	// TODO: Send marshalled JSON object to Commander API for database updates below here
-	r.admissionPolicies = append(r.admissionPolicies, updatedAdmissionPolicy)
-	return updatedAdmissionPolicy, nil
-}

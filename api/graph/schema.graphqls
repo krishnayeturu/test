@@ -49,13 +49,10 @@ type Query {
 
 type Mutation {
   createAdmissionPolicy(admissionPolicy: AdmissionPolicyInput!): AdmissionPolicy
-  addAdmissionPolicyAction(id: String!, admissionPolicy: AdmissionPolicyInput!): AdmissionPolicy
-  deleteAdmissionPolicyAction(id: String!, admissionPolicy: AdmissionPolicyInput!): AdmissionPolicy
-  addAdmissionPolicyPrincipal(id: String!, admissionPolicy: AdmissionPolicyInput!): AdmissionPolicy
-  deleteAdmissionPolicyPrincipal(id: String!, principal: String!): AdmissionPolicy
-  addAdmissionPolicyResource(id: String!, admissionPolicy: AdmissionPolicyInput!): AdmissionPolicy
-  deleteAdmissionPolicyResource(id: String!, admissionPolicy: AdmissionPolicyInput!): AdmissionPolicy
-  deleteAdmissionPolicy(admissionPolicy: AdmissionPolicyInput!): Boolean
+  updateAdmissionPolicyActions(id: String!, admissionPolicyActions: [String]): AdmissionPolicy # encompasses add, update, delete
+  updateAdmissionPolicyPrincipals(id: String!, admissionPolicyPrincipals: [String]): AdmissionPolicy # encompasses add, update, delete
+  updateAdmissionPolicyResources(id: String!, admissionPolicyResources: [String]): AdmissionPolicy # encompasses add, update, delete
+  deleteAdmissionPolicy(id: String!): Boolean
   createTodo(input: NewTodo!): Todo!
 }
 
