@@ -7,9 +7,9 @@ import (
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
-	"gitlab.com/2ndwatch/microservices/ms-admissions-service/ms-admissions-api/database"
-	"gitlab.com/2ndwatch/microservices/ms-admissions-service/ms-admissions-api/graph"
-	"gitlab.com/2ndwatch/microservices/ms-admissions-service/ms-admissions-api/graph/generated"
+	"gitlab.com/2ndwatch/microservices/ms-admissions-service/api/cmd/graph"
+	"gitlab.com/2ndwatch/microservices/ms-admissions-service/api/cmd/graph/generated"
+	"gitlab.com/2ndwatch/microservices/ms-admissions-service/api/database"
 )
 
 const defaultPort = "8080"

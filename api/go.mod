@@ -1,4 +1,4 @@
-module gitlab.com/2ndwatch/microservices/ms-admissions-service/ms-admissions-api
+module gitlab.com/2ndwatch/microservices/ms-admissions-service/api
 
 go 1.17
 
