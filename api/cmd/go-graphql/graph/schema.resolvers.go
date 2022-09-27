@@ -45,12 +45,84 @@ func (r *mutationResolver) CreateAdmissionPolicy(ctx context.Context, admissionP
 	return createdAdmissionPolicy, nil
 }
 
+// UpdateAdmissionPolicyActions is the resolver for the updateAdmissionPolicyActions field.
+func (r *mutationResolver) UpdateAdmissionPolicyActions(ctx context.Context, id string, admissionPolicyActions []*string) (*model.AdmissionPolicy, error) {
+	// updateAdmissionPolicyActionsModel := &model.AdmissionPolicyActions{
+	// 	ID:      id,
+	// 	Actions: admissionPolicyActions,
+	// }
+	// messageData := CommanderMessage{
+	// 	Action: "UpdateAdmissionPolicyActions",
+	// 	Data: CommanderMessageData{
+	// 		MessageUUID: strings.Replace(uuid.New().String(), "-", "", -1),
+	// 		DataBlob:    updateAdmissionPolicyActionsModel,
+	// 		CommandName: "UpdateAdmissionPolicyActions", // may not need this
+	// 	},
+	// }
+	// _, err = MakeApiRequest(messageData, "PUT")
+	// if err != nil {
+	// 	return fmt.Errorf("encountered an error while trying to PUT object: %v", err)
+	// }
+
+	// fmt.Printf("Successfully submitted PUT request for object %s", data)
+	// return updateAdmissionPolicyActionsModel, nil
+	return &model.AdmissionPolicy{}, nil
+}
+
+// UpdateAdmissionPolicyPrincipals is the resolver for the updateAdmissionPolicyPrincipals field.
+func (r *mutationResolver) UpdateAdmissionPolicyPrincipals(ctx context.Context, id string, admissionPolicyPrincipals []*string) (*model.AdmissionPolicy, error) {
+	// updateAdmissionPolicyPrincipalsModel := &model.AdmissionPolicyPrincipals{
+	// 	ID:         id,
+	// 	Principals: admissionPolicyPrincipals,
+	// }
+	// messageData := CommanderMessage{
+	// 	Action: "UpdateAdmissionPolicyPrincipals",
+	// 	Data: CommanderMessageData{
+	// 		MessageUUID: strings.Replace(uuid.New().String(), "-", "", -1),
+	// 		DataBlob:    *updateAdmissionPolicyPrincipalsModel.Principals,
+	// 		CommandName: "UpdateAdmissionPolicyPrincipals", // may not need this
+	// 	},
+	// }
+	// _, err = MakeApiRequest(messageData, "PUT")
+	// if err != nil {
+	// 	return fmt.Errorf("encountered an error while trying to PUT object: %v", err)
+	// }
+
+	// fmt.Printf("Successfully submitted PUT request for object %s", data)
+	// return updateAdmissionPolicyPrincipalsModel, nil
+	return &model.AdmissionPolicy{}, nil
+}
+
+// UpdateAdmissionPolicyResources is the resolver for the updateAdmissionPolicyResources field.
+func (r *mutationResolver) UpdateAdmissionPolicyResources(ctx context.Context, id string, admissionPolicyResources []*string) (*model.AdmissionPolicy, error) {
+	// updateAdmissionPolicyResourcesModel := &model.AdmissionPolicyResources{
+	// 	ID:        id,
+	// 	Resources: admissionPolicyResources,
+	// }
+	// messageData := CommanderMessage{
+	// 	Action: "UpdateAdmissionPolicyResources",
+	// 	Data: CommanderMessageData{
+	// 		MessageUUID: strings.Replace(uuid.New().String(), "-", "", -1),
+	// 		DataBlob:    *updateAdmissionPolicyResourcesModel,
+	// 		CommandName: "UpdateAdmissionPolicyResources", // may not need this
+	// 	},
+	// }
+	// _, err = MakeApiRequest(messageData, "PUT")
+	// if err != nil {
+	// 	return fmt.Errorf("encountered an error while trying to PUT object: %v", err)
+	// }
+
+	// fmt.Printf("Successfully submitted PUT request for object %s", data)
+	// return updateAdmissionPolicyResourcesModel, nil
+	return &model.AdmissionPolicy{}, nil
+}
+
 // DeleteAdmissionPolicy is the resolver for the deleteAdmissionPolicy field.
 func (r *mutationResolver) DeleteAdmissionPolicy(ctx context.Context, id string) (*bool, error) {
 	// The below logic will be replaced with Commander API call for deletes here, this is temporary for example
 	// TODO: Send marshalled JSON object to Commander API for database deletes below here
 	var deleted = false
-	// messageData := &commanderclient.CommanderMessage{
+	// messageData := CommanderMessage{
 	// 	Action: "DeleteAdmissionPolicy",
 	// 	Data: CommanderMessageData{
 	// 		MessageUUID: strings.Replace(uuid.New().String(), "-", "", -1),
@@ -58,7 +130,7 @@ func (r *mutationResolver) DeleteAdmissionPolicy(ctx context.Context, id string)
 	// 		CommandName: "DeleteAdmissionPolicy", // may not need this
 	// 	},
 	// }
-	// _, err = commanderclient.MakeApiRequest(messageData, "DELETE")
+	// _, err = MakeApiRequest(messageData, "DELETE")
 	// if err != nil {
 	// 	return fmt.Errorf("encountered an error while trying to DELETE object: %v", err)
 	// }

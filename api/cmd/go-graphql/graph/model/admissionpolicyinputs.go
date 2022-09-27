@@ -1,16 +1,16 @@
 package model
 
-type UpdateAdmissionPolicyActions struct {
+type AdmissionPolicyActions struct {
 	ID      string    `json:"id"`
 	Actions []*string `json:"actions"`
 }
 
-type UpdateAdmissionPolicyPrincipals struct {
+type AdmissionPolicyPrincipals struct {
 	ID         string    `json:"id"`
 	Principals []*string `json:"principals"`
 }
 
-type UpdateAdmissionPolicyResources struct {
+type AdmissionPolicyResources struct {
 	ID        string    `json:"id"`
 	Resources []*string `json:"resources"`
 }
