@@ -1,7 +1,7 @@
 mslib:
   deployment:
     ms-admissions-api:
-      image: registry.gitlab.com/2ndwatch/microservices/integrations/ms-admissions-api/ms-admissions-api
+      image: registry.gitlab.com/2ndwatch/microservices/ms-admissions-service/api
       imageTag: 0
       imagePullPolicy: Always
       serviceAccountName: ms-admissions-api
