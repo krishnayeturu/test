@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package com._2ndwatch.admissions.v1;
+
+option go_package = "gitlab.com/2ndwatch/microservices/ms-admissions-service/api/pkg/pb/admissions;admissions";
+option java_multiple_files = true;
+option java_package = "com._2ndwatch.admissions";
+option java_outer_classname = "AdmissionsProto";
+
+import "type/uuid.proto";
+
+enum Effect {
+    ALLOW = 0;
+    DENY = 1;
+}
+
+enum AdmissionPolicyType {
+    CREDENTIAL = 0;
+}
+
+message AdmissionMessage {
+    com._2ndwatch.type.UUID id = 1;
+    string name = 2;
+    Effect effect = 3;
+    AdmissionPolicyType type = 4;
+    repeated string principals = 5;
+    repeated string actions = 6;
+    repeated string resources = 7;
+}
+
+message CommandParams {
+  string action = 1;
+  google.protobuf.Struct data = 2;
+  bool sync = 3;
+}
