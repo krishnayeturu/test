@@ -8,6 +8,8 @@ option java_package = "com._2ndwatch.admissions";
 option java_outer_classname = "AdmissionsProto";
 
 import "type/uuid.proto";
+import "google/protobuf/any.proto";
+import "google/protobuf/struct.proto";
 
 enum Effect {
     ALLOW = 0;
@@ -32,4 +34,15 @@ message CommandParams {
   string action = 1;
   google.protobuf.Struct data = 2;
   bool sync = 3;
+}
+
+message Command {
+  com._2ndwatch.type.UUID id = 1;
+  string action = 2;
+  google.protobuf.Any data = 3;
+  int64 timestamp = 4;
+  string topic = 5;
+  int32 partition = 6;
+  int64 offset = 7;
+  repeated com._2ndwatch.type.UUID children = 8;
 }
