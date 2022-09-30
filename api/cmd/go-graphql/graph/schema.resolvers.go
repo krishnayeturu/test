@@ -11,6 +11,8 @@ import (
 	"github.com/google/uuid"
 	"gitlab.com/2ndwatch/microservices/ms-admissions-service/api/cmd/go-graphql/graph/generated"
 	"gitlab.com/2ndwatch/microservices/ms-admissions-service/api/cmd/go-graphql/graph/model"
+	"gitlab.com/2ndwatch/microservices/ms-admissions-service/api/pkg/pb/admissions"
+	uid "gitlab.com/2ndwatch/microservices/ms-admissions-service/api/pkg/pb/type/uuid"
 )
 
 // CreateAdmissionPolicy is the resolver for the createAdmissionPolicy field.
@@ -42,6 +44,46 @@ func (r *mutationResolver) CreateAdmissionPolicy(ctx context.Context, admissionP
 			CommandName: "CreateAdmissionPolicy",
 		},
 	}
+
+	uuid := &uid.UUID{Value: policyUuid}
+	effect := admissions.Effect(admissions.Effect_value[admissionPolicy.Effect.String()])
+	policyType := admissions.AdmissionPolicyType(admissions.AdmissionPolicyType_value[admissionPolicy.Type.String()])
+	princips := []string{}
+	for _, val := range admissionPolicy.Principal {
+		if val != nil {
+			princips = append(princips, *val)
+		}
+	}
+
+	acts := []string{}
+	for _, val := range admissionPolicy.Actions {
+		if val != nil {
+			acts = append(acts, *val)
+		}
+	}
+
+	ress := []string{}
+	for _, val := range admissionPolicy.Resources {
+		if val != nil {
+			ress = append(ress, *val)
+		}
+	}
+
+	pbAdmissionsMessage := &admissions.AdmissionMessage{
+		Id:         uuid,
+		Name:       admissionPolicy.Name,
+		Effect:     effect,
+		Type:       policyType,
+		Principals: princips,
+		Actions:    acts,
+		Resources:  ress,
+	}
+
+	// TODO: marshal above pbAdmissionsMessage to proto struct for sending to Commander API in below func call
+	// commandParams := &admissions.CommandParams{
+	// 	Action: "CreateAdmissionPolicy",
+	// 	Data:   protojson.Marshal(),
+	// }
 	response, err := r.apiClient.MakeApiRequest(messageData, "POST")
 	if err != nil {
 		return nil, fmt.Errorf("encountered an error while trying to POST object: %v", err)
