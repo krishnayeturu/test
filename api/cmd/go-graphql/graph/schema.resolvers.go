@@ -11,8 +11,6 @@ import (
 	"github.com/google/uuid"
 	"gitlab.com/2ndwatch/microservices/ms-admissions-service/api/cmd/go-graphql/graph/generated"
 	"gitlab.com/2ndwatch/microservices/ms-admissions-service/api/cmd/go-graphql/graph/model"
-	"gitlab.com/2ndwatch/microservices/ms-admissions-service/api/pkg/pb/admissions"
-	uid "gitlab.com/2ndwatch/microservices/ms-admissions-service/api/pkg/pb/type/uuid"
 )
 
 // CreateAdmissionPolicy is the resolver for the createAdmissionPolicy field.
@@ -32,59 +30,55 @@ func (r *mutationResolver) CreateAdmissionPolicy(ctx context.Context, admissionP
 	r.admissionPolicies = append(r.admissionPolicies, createdAdmissionPolicy)
 
 	// encode input struct
-	encodedBlob, err := EncodeToString(createdAdmissionPolicy)
-	if err != nil {
-		return nil, fmt.Errorf("encountered an error while encoding input object: %v", err)
-	}
-	messageData := CommanderMessage{
-		Action: "CreateAdmissionPolicy",
-		Data: CommanderMessageData{
-			MessageUUID: strings.Replace(uuid.New().String(), "-", "", -1),
-			DataBlob:    encodedBlob,
-			CommandName: "CreateAdmissionPolicy",
-		},
-	}
+	// encodedBlob, err := EncodeToString(createdAdmissionPolicy)
+	// if err != nil {
+	// 	return nil, fmt.Errorf("encountered an error while encoding input object: %v", err)
+	// }
+	// messageData := CommanderMessage{
+	// 	Action: "CreateAdmissionPolicy",
+	// 	Data: CommanderMessageData{
+	// 		MessageUUID: strings.Replace(uuid.New().String(), "-", "", -1),
+	// 		DataBlob:    encodedBlob,
+	// 		CommandName: "CreateAdmissionPolicy",
+	// 	},
+	// }
 
-	uuid := &uid.UUID{Value: policyUuid}
-	effect := admissions.Effect(admissions.Effect_value[admissionPolicy.Effect.String()])
-	policyType := admissions.AdmissionPolicyType(admissions.AdmissionPolicyType_value[admissionPolicy.Type.String()])
-	princips := []string{}
-	for _, val := range admissionPolicy.Principal {
-		if val != nil {
-			princips = append(princips, *val)
-		}
-	}
+	// uuid := &uid.UUID{Value: policyUuid}
+	// effect := admissions.Effect(admissions.Effect_value[admissionPolicy.Effect.String()])
+	// policyType := admissions.AdmissionPolicyType(admissions.AdmissionPolicyType_value[admissionPolicy.Type.String()])
+	// princips := []string{}
+	// for _, val := range admissionPolicy.Principal {
+	// 	if val != nil {
+	// 		princips = append(princips, *val)
+	// 	}
+	// }
 
-	acts := []string{}
-	for _, val := range admissionPolicy.Actions {
-		if val != nil {
-			acts = append(acts, *val)
-		}
-	}
+	// acts := []string{}
+	// for _, val := range admissionPolicy.Actions {
+	// 	if val != nil {
+	// 		acts = append(acts, *val)
+	// 	}
+	// }
 
-	ress := []string{}
-	for _, val := range admissionPolicy.Resources {
-		if val != nil {
-			ress = append(ress, *val)
-		}
-	}
+	// ress := []string{}
+	// for _, val := range admissionPolicy.Resources {
+	// 	if val != nil {
+	// 		ress = append(ress, *val)
+	// 	}
+	// }
 
-	pbAdmissionsMessage := &admissions.AdmissionMessage{
-		Id:         uuid,
-		Name:       admissionPolicy.Name,
-		Effect:     effect,
-		Type:       policyType,
-		Principals: princips,
-		Actions:    acts,
-		Resources:  ress,
-	}
+	// pbAdmissionsMessage := &admissions.AdmissionMessage{
+	// 	Id:         uuid,
+	// 	Name:       admissionPolicy.Name,
+	// 	Effect:     effect,
+	// 	Type:       policyType,
+	// 	Principals: princips,
+	// 	Actions:    acts,
+	// 	Resources:  ress,
+	// }
 
 	// TODO: marshal above pbAdmissionsMessage to proto struct for sending to Commander API in below func call
-	// commandParams := &admissions.CommandParams{
-	// 	Action: "CreateAdmissionPolicy",
-	// 	Data:   protojson.Marshal(),
-	// }
-	response, err := r.apiClient.MakeApiRequest(messageData, "POST")
+	response, err := r.apiClient.MakeApiRequest(*createdAdmissionPolicy, "CreateAdmissionPolicy", "POST")
 	if err != nil {
 		return nil, fmt.Errorf("encountered an error while trying to POST object: %v", err)
 	}
@@ -99,21 +93,31 @@ func (r *mutationResolver) UpdateAdmissionPolicyActions(ctx context.Context, id 
 		ID:      id,
 		Actions: admissionPolicyActions,
 	}
+	fmt.Println(updateAdmissionPolicyActionsModel)
 	// encode input struct
-	encodedBlob, err := EncodeToString(updateAdmissionPolicyActionsModel)
-	if err != nil {
-		return nil, fmt.Errorf("encountered an error while encoding input object: %v", err)
-	}
+	// encodedBlob, err := EncodeToString(updateAdmissionPolicyActionsModel)
+	// if err != nil {
+	// 	return nil, fmt.Errorf("encountered an error while encoding input object: %v", err)
+	// }
 
-	messageData := CommanderMessage{
-		Action: "UpdateAdmissionPolicyActions",
-		Data: CommanderMessageData{
-			MessageUUID: strings.Replace(uuid.New().String(), "-", "", -1),
-			DataBlob:    encodedBlob,
-			CommandName: "UpdateAdmissionPolicyActions", // may not need this
-		},
+	// messageData := CommanderMessage{
+	// 	Action: "UpdateAdmissionPolicyActions",
+	// 	Data: CommanderMessageData{
+	// 		MessageUUID: strings.Replace(uuid.New().String(), "-", "", -1),
+	// 		DataBlob:    encodedBlob,
+	// 		CommandName: "UpdateAdmissionPolicyActions", // may not need this
+	// 	},
+	// }
+	updatedAdmissionPolicy := &model.AdmissionPolicy{
+		ID:        id,
+		Name:      "",
+		Effect:    nil,
+		Type:      nil,
+		Principal: []*string{},
+		Actions:   append([]*string{}, admissionPolicyActions...),
+		Resources: []*string{},
 	}
-	response, err := r.apiClient.MakeApiRequest(messageData, "PUT")
+	response, err := r.apiClient.MakeApiRequest(*updatedAdmissionPolicy, "UpdateAdmissionPolicyActions", "PUT")
 	if err != nil {
 		return nil, fmt.Errorf("encountered an error while trying to PUT object: %v", err)
 	}
@@ -129,22 +133,32 @@ func (r *mutationResolver) UpdateAdmissionPolicyPrincipals(ctx context.Context, 
 		ID:         id,
 		Principals: admissionPolicyPrincipals,
 	}
+	fmt.Println(updateAdmissionPolicyPrincipalsModel)
 
 	// encode input struct
-	encodedBlob, err := EncodeToString(updateAdmissionPolicyPrincipalsModel)
-	if err != nil {
-		return nil, fmt.Errorf("encountered an error while encoding input object: %v", err)
-	}
+	// encodedBlob, err := EncodeToString(updateAdmissionPolicyPrincipalsModel)
+	// if err != nil {
+	// 	return nil, fmt.Errorf("encountered an error while encoding input object: %v", err)
+	// }
 
-	messageData := CommanderMessage{
-		Action: "UpdateAdmissionPolicyPrincipals",
-		Data: CommanderMessageData{
-			MessageUUID: strings.Replace(uuid.New().String(), "-", "", -1),
-			DataBlob:    encodedBlob,
-			CommandName: "UpdateAdmissionPolicyPrincipals", // may not need this
-		},
+	// messageData := CommanderMessage{
+	// 	Action: "UpdateAdmissionPolicyPrincipals",
+	// 	Data: CommanderMessageData{
+	// 		MessageUUID: strings.Replace(uuid.New().String(), "-", "", -1),
+	// 		DataBlob:    encodedBlob,
+	// 		CommandName: "UpdateAdmissionPolicyPrincipals", // may not need this
+	// 	},
+	// }
+	updatedAdmissionPolicy := &model.AdmissionPolicy{
+		ID:        id,
+		Name:      "",
+		Effect:    nil,
+		Type:      nil,
+		Principal: append([]*string{}, admissionPolicyPrincipals...),
+		Actions:   []*string{},
+		Resources: []*string{},
 	}
-	response, err := r.apiClient.MakeApiRequest(messageData, "PUT")
+	response, err := r.apiClient.MakeApiRequest(*updatedAdmissionPolicy, "UpdateAdmissionPolicyPrincipals", "PUT")
 	if err != nil {
 		return nil, fmt.Errorf("encountered an error while trying to PUT object: %v", err)
 	}
@@ -160,22 +174,32 @@ func (r *mutationResolver) UpdateAdmissionPolicyResources(ctx context.Context, i
 		ID:        id,
 		Resources: admissionPolicyResources,
 	}
+	fmt.Println(updateAdmissionPolicyResourcesModel)
 
 	// encode input struct
-	encodedBlob, err := EncodeToString(updateAdmissionPolicyResourcesModel)
-	if err != nil {
-		return nil, fmt.Errorf("encountered an error while encoding input object: %v", err)
-	}
+	// encodedBlob, err := EncodeToString(updateAdmissionPolicyResourcesModel)
+	// if err != nil {
+	// 	return nil, fmt.Errorf("encountered an error while encoding input object: %v", err)
+	// }
 
-	messageData := CommanderMessage{
-		Action: "UpdateAdmissionPolicyResources",
-		Data: CommanderMessageData{
-			MessageUUID: strings.Replace(uuid.New().String(), "-", "", -1),
-			DataBlob:    encodedBlob,
-			CommandName: "UpdateAdmissionPolicyResources", // may not need this
-		},
+	// messageData := CommanderMessage{
+	// 	Action: "UpdateAdmissionPolicyResources",
+	// 	Data: CommanderMessageData{
+	// 		MessageUUID: strings.Replace(uuid.New().String(), "-", "", -1),
+	// 		DataBlob:    encodedBlob,
+	// 		CommandName: "UpdateAdmissionPolicyResources", // may not need this
+	// 	},
+	// }
+	updatedAdmissionPolicy := &model.AdmissionPolicy{
+		ID:        id,
+		Name:      "",
+		Effect:    nil,
+		Type:      nil,
+		Principal: []*string{},
+		Actions:   []*string{},
+		Resources: append([]*string{}, admissionPolicyResources...),
 	}
-	response, err := r.apiClient.MakeApiRequest(messageData, "PUT")
+	response, err := r.apiClient.MakeApiRequest(*updatedAdmissionPolicy, "UpdateAdmissionPolicyResources", "PUT")
 	if err != nil {
 		return nil, fmt.Errorf("encountered an error while trying to PUT object: %v", err)
 	}
@@ -190,15 +214,24 @@ func (r *mutationResolver) DeleteAdmissionPolicy(ctx context.Context, id string)
 	// The below logic will be replaced with Commander API call for deletes here, this is temporary for example
 	// TODO: Send marshalled JSON object to Commander API for database deletes below here
 	var deleted = false
-	messageData := CommanderMessage{
-		Action: "DeleteAdmissionPolicy",
-		Data: CommanderMessageData{
-			MessageUUID: strings.Replace(uuid.New().String(), "-", "", -1),
-			DataBlob:    id,
-			CommandName: "DeleteAdmissionPolicy", // may not need this
-		},
+	// messageData := CommanderMessage{
+	// 	Action: "DeleteAdmissionPolicy",
+	// 	Data: CommanderMessageData{
+	// 		MessageUUID: strings.Replace(uuid.New().String(), "-", "", -1),
+	// 		DataBlob:    id,
+	// 		CommandName: "DeleteAdmissionPolicy", // may not need this
+	// 	},
+	// }
+	updatedAdmissionPolicy := &model.AdmissionPolicy{
+		ID:        id,
+		Name:      "",
+		Effect:    nil,
+		Type:      nil,
+		Principal: []*string{},
+		Actions:   []*string{},
+		Resources: []*string{},
 	}
-	response, err := r.apiClient.MakeApiRequest(messageData, "DELETE")
+	response, err := r.apiClient.MakeApiRequest(*updatedAdmissionPolicy, "DeleteAdmissionPolicy", "DELETE")
 	if err != nil {
 		return nil, fmt.Errorf("encountered an error while trying to DELETE object: %v", err)
 	}

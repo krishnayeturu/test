@@ -2,11 +2,16 @@ package graph
 
 import (
 	"bytes"
-	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"os"
+
+	"gitlab.com/2ndwatch/microservices/ms-admissions-service/api/cmd/go-graphql/graph/model"
+	"gitlab.com/2ndwatch/microservices/ms-admissions-service/api/pkg/pb/admissions"
+	uid "gitlab.com/2ndwatch/microservices/ms-admissions-service/api/pkg/pb/type/uuid"
+	"google.golang.org/protobuf/encoding/protojson"
+	"google.golang.org/protobuf/types/known/structpb"
 	// cmdr "gitlab.com/2ndwatch/microservices/apis/ms-api-commander/pkg/pb/commander"
 )
 
@@ -42,21 +47,63 @@ func (apiClient *CommanderClient) fetchXApiKeyHeaders() string {
 	return "foo"
 }
 
+func convertAdmissionPolicyToProtoStruct(message model.AdmissionPolicy) structpb.Struct {
+	principals := []string{}
+	for _, val := range message.Principal {
+		if val != nil {
+			principals = append(principals, *val)
+		}
+	}
+
+	actions := []string{}
+	for _, val := range message.Actions {
+		if val != nil {
+			actions = append(actions, *val)
+		}
+	}
+
+	resources := []string{}
+	for _, val := range message.Resources {
+		if val != nil {
+			resources = append(resources, *val)
+		}
+	}
+	effect := admissions.Effect(admissions.Effect_value[message.Effect.String()])
+	pbAdmissionsMessage := &admissions.AdmissionMessage{
+		Id:         &uid.UUID{Value: message.ID},
+		Name:       message.Name,
+		Effect:     effect,
+		Type:       admissions.AdmissionPolicyType(admissions.AdmissionPolicyType_value[message.Type.String()]),
+		Principals: principals,
+		Actions:    actions,
+		Resources:  resources,
+	}
+
+	msg := &structpb.Struct{}
+	protojson.Unmarshal([]byte(pbAdmissionsMessage.String()), msg)
+	return *msg
+}
+
 //endregion private funcs
 
 //region public funcs
-func (apiClient *CommanderClient) MakeApiRequest(message CommanderMessage, requestType string) (*string, error) {
+func (apiClient *CommanderClient) MakeApiRequest(message model.AdmissionPolicy, action string, requestType string) (*string, error) {
 
-	requestBody, err := json.Marshal(message)
-	if err != nil {
-		return nil, err
+	// requestBody, err := json.Marshal(message)
+	requestBody := convertAdmissionPolicyToProtoStruct(message)
+	commandParams := &admissions.CommandParams{
+		Action: action,
+		Data:   &requestBody,
 	}
 
 	if requestType == "" {
 		return nil, fmt.Errorf("must specific request type (POST, PUT, DELETE)")
 	}
+	// TODO: test if below will properly represent commandParams when sending to API -- seems unlikely
+	byte_slice := []byte{}
+	protojson.Unmarshal(byte_slice, commandParams)
+	request, err := http.NewRequest(requestType, targetApiEndpoint, bytes.NewBuffer(byte_slice))
 
-	request, err := http.NewRequest(requestType, targetApiEndpoint, bytes.NewBuffer(requestBody))
 	if err != nil {
 		return nil, err
 	}
