@@ -29,6 +29,49 @@ func (r *mutationResolver) CreateAdmissionPolicy(ctx context.Context, admissionP
 	// // TODO: Send marshalled JSON object to Commander API for database inserts here
 	r.admissionPolicies = append(r.admissionPolicies, createdAdmissionPolicy)
 
+	// region Database Operations
+	// TODO: this is a naive implementation of the database interaction logic, we should investigate GQL data loaders to scale more efficiently as queries increase
+	ConnectDB()
+	statement, err := Db.Prepare(`INSERT INTO AdmissionPolicy (UUID, Name, Effect, Type) VALUES (?, ?, ?, ?)`)
+	if err != nil {
+		return nil, err
+	}
+
+	result, err := statement.Exec(createdAdmissionPolicy.ID, createdAdmissionPolicy.Name, createdAdmissionPolicy.Effect, createdAdmissionPolicy.Type)
+	if err != nil {
+		return nil, err
+	} else {
+		insert_id, err := result.LastInsertId()
+		if err != nil {
+			return nil, err
+		}
+		fmt.Printf("Successfully inserted supplied admission policy %d", insert_id)
+		// iterate principals, actions, and resources and insert each into AdmissionPolicyRelation
+		statement, err := Db.Prepare(`INSERT INTO AdmissionPolicyRelation (PolicyId, Effect, Principal, Action, ResourceId) Values (?, ?, ?, ?, ?)`)
+		if err != nil {
+			return nil, err
+		}
+		// Test below thoroughly as it seems clunky
+		for _, principal := range createdAdmissionPolicy.Principal {
+			if principal != nil {
+				for _, resource := range createdAdmissionPolicy.Resources {
+					if resource != nil {
+						for _, action := range createdAdmissionPolicy.Actions {
+							if action != nil {
+								_, err := statement.Exec(insert_id, createdAdmissionPolicy.Effect, principal, action, resource)
+								if err != nil {
+									return nil, err
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+
+	}
+	// endregion Database Operations
+
 	// encode input struct
 	// encodedBlob, err := EncodeToString(createdAdmissionPolicy)
 	// if err != nil {
@@ -77,11 +120,12 @@ func (r *mutationResolver) CreateAdmissionPolicy(ctx context.Context, admissionP
 	// 	Resources:  ress,
 	// }
 
-	// TODO: marshal above pbAdmissionsMessage to proto struct for sending to Commander API in below func call
+	// region API call
 	response, err := r.apiClient.MakeApiRequest(*createdAdmissionPolicy, "CreateAdmissionPolicy", "POST")
 	if err != nil {
 		return nil, fmt.Errorf("encountered an error while trying to POST object: %v", err)
 	}
+	// endregion API call
 
 	fmt.Printf("Successfully submitted POST request for object %s", *response)
 	return createdAdmissionPolicy, nil
