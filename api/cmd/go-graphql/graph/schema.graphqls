@@ -20,6 +20,31 @@ type AdmissionPolicy {
   resources: [String]! # identifier for what you have access to records-wise -- allow for wildcard - parn:credential:::my-credential-name, parn:user:::some-user-name, etc
 }
 
+type AdmissionPrincipalEvalutation { # input model for evaluating if principal has action on resource
+  # id: ID!
+  # policyId: String!
+  # effect: Effect
+  ttl: String
+  principal: String! # list of PARNs representing various principals - parn:user:::myusername, credential.prod-eng.2nd.watch, etc
+  action: String # credential:Read, credential:Write, admissionPolicy:Read, etc
+  resource: String # identifier for what you have access to records-wise -- allow for wildcard - parn:credential:::my-credential-name, parn:user:::some-user-name, etc
+}
+
+type AdmissionPrincipalAuthorization { # output model for evaluating if principal has action on resource
+  principal: String!
+  authorizationResult: Boolean!
+  expireTime: String
+}
+
+type AdmissionPrincipalView { # model for reading records for an admission principal
+  id: ID
+  policyId: String!
+  effect: Effect!
+  principal: String! # list of PARNs representing various principals - parn:user:::myusername, credential.prod-eng.2nd.watch, etc
+  action: String # credential:Read, credential:Write, admissionPolicy:Read, etc
+  resource: String # identifier for what you have access to records-wise -- allow for wildcard - parn:credential:::my-credential-name, parn:user:::some-user-name, etc
+}
+
 input AdmissionPolicyInput {
   id: String
   name: String!

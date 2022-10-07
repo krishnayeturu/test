@@ -31,45 +31,45 @@ func (r *mutationResolver) CreateAdmissionPolicy(ctx context.Context, admissionP
 
 	// region Database Operations
 	// TODO: this is a naive implementation of the database interaction logic, we should investigate GQL data loaders to scale more efficiently as queries increase
-	ConnectDB()
-	statement, err := Db.Prepare(`INSERT INTO AdmissionPolicy (UUID, Name, Effect, Type) VALUES (?, ?, ?, ?)`)
-	if err != nil {
-		return nil, err
-	}
+	// ConnectDB()
+	// statement, err := Db.Prepare(`INSERT INTO AdmissionPolicy (UUID, Name, Type) VALUES (?, ?, ?)`)
+	// if err != nil {
+	// 	return nil, err
+	// }
 
-	result, err := statement.Exec(createdAdmissionPolicy.ID, createdAdmissionPolicy.Name, createdAdmissionPolicy.Effect, createdAdmissionPolicy.Type)
-	if err != nil {
-		return nil, err
-	} else {
-		insert_id, err := result.LastInsertId()
-		if err != nil {
-			return nil, err
-		}
-		fmt.Printf("Successfully inserted supplied admission policy %d", insert_id)
-		// iterate principals, actions, and resources and insert each into AdmissionPolicyRelation
-		statement, err := Db.Prepare(`INSERT INTO AdmissionPolicyRelation (PolicyId, Effect, Principal, Action, ResourceId) Values (?, ?, ?, ?, ?)`)
-		if err != nil {
-			return nil, err
-		}
-		// Test below thoroughly as it seems clunky
-		for _, principal := range createdAdmissionPolicy.Principal {
-			if principal != nil {
-				for _, resource := range createdAdmissionPolicy.Resources {
-					if resource != nil {
-						for _, action := range createdAdmissionPolicy.Actions {
-							if action != nil {
-								_, err := statement.Exec(insert_id, createdAdmissionPolicy.Effect, principal, action, resource)
-								if err != nil {
-									return nil, err
-								}
-							}
-						}
-					}
-				}
-			}
-		}
+	// result, err := statement.Exec(createdAdmissionPolicy.ID, createdAdmissionPolicy.Name, createdAdmissionPolicy.Type)
+	// if err != nil {
+	// 	return nil, err
+	// } else {
+	// 	insert_id, err := result.LastInsertId()
+	// 	if err != nil {
+	// 		return nil, err
+	// 	}
+	// 	fmt.Printf("Successfully inserted supplied admission policy %d", insert_id)
+	// 	// iterate principals, actions, and resources and insert each into AdmissionPolicyRelation
+	// 	statement, err := Db.Prepare(`INSERT INTO AdmissionPolicyRelation (PolicyId, Effect, Principal, Action, ResourceId) Values (?, ?, ?, ?, ?)`)
+	// 	if err != nil {
+	// 		return nil, err
+	// 	}
+	// 	// Test below thoroughly as it seems clunky
+	// 	for _, principal := range createdAdmissionPolicy.Principal {
+	// 		if principal != nil {
+	// 			for _, resource := range createdAdmissionPolicy.Resources {
+	// 				if resource != nil {
+	// 					for _, action := range createdAdmissionPolicy.Actions {
+	// 						if action != nil {
+	// 							_, err := statement.Exec(insert_id, createdAdmissionPolicy.Effect, principal, action, resource)
+	// 							if err != nil {
+	// 								return nil, err
+	// 							}
+	// 						}
+	// 					}
+	// 				}
+	// 			}
+	// 		}
+	// 	}
 
-	}
+	// }
 	// endregion Database Operations
 
 	// encode input struct
@@ -121,13 +121,12 @@ func (r *mutationResolver) CreateAdmissionPolicy(ctx context.Context, admissionP
 	// }
 
 	// region API call
-	response, err := r.apiClient.MakeApiRequest(*createdAdmissionPolicy, "CreateAdmissionPolicy", "POST")
-	if err != nil {
-		return nil, fmt.Errorf("encountered an error while trying to POST object: %v", err)
-	}
+	// response, err := r.apiClient.MakeApiRequest(*createdAdmissionPolicy, "CreateAdmissionPolicy", "POST")
+	// if err != nil {
+	// 	return nil, fmt.Errorf("encountered an error while trying to POST object: %v", err)
+	// }
+	// fmt.Printf("Successfully submitted POST request for object %s", *response)
 	// endregion API call
-
-	fmt.Printf("Successfully submitted POST request for object %s", *response)
 	return createdAdmissionPolicy, nil
 }
 
@@ -152,23 +151,31 @@ func (r *mutationResolver) UpdateAdmissionPolicyActions(ctx context.Context, id 
 	// 		CommandName: "UpdateAdmissionPolicyActions", // may not need this
 	// 	},
 	// }
-	updatedAdmissionPolicy := &model.AdmissionPolicy{
-		ID:        id,
-		Name:      "",
-		Effect:    nil,
-		Type:      nil,
-		Principal: []*string{},
-		Actions:   append([]*string{}, admissionPolicyActions...),
-		Resources: []*string{},
-	}
-	response, err := r.apiClient.MakeApiRequest(*updatedAdmissionPolicy, "UpdateAdmissionPolicyActions", "PUT")
-	if err != nil {
-		return nil, fmt.Errorf("encountered an error while trying to PUT object: %v", err)
-	}
-
-	fmt.Printf("Successfully submitted PUT request for object %s", *response)
+	// updatedAdmissionPolicy := &model.AdmissionPolicy{
+	// 	ID:        id,
+	// 	Name:      "",
+	// 	Effect:    nil,
+	// 	Type:      nil,
+	// 	Principal: []*string{},
+	// 	Actions:   append([]*string{}, admissionPolicyActions...),
+	// 	Resources: []*string{},
+	// }
+	// region API call
+	// response, err := r.apiClient.MakeApiRequest(*updatedAdmissionPolicy, "UpdateAdmissionPolicyActions", "PUT")
+	// if err != nil {
+	// 	return nil, fmt.Errorf("encountered an error while trying to PUT object: %v", err)
+	// }
+	// fmt.Printf("Successfully submitted PUT request for object %s", *response)
+	// region API call
 	// return updateAdmissionPolicyActionsModel, nil
-	return &model.AdmissionPolicy{}, nil
+	matchingPolicy := model.AdmissionPolicy{}
+	for _, v := range r.admissionPolicies {
+		if v.ID == id {
+			v.Actions = updateAdmissionPolicyActionsModel.Actions
+			matchingPolicy = *v
+		}
+	}
+	return &matchingPolicy, nil
 }
 
 // UpdateAdmissionPolicyPrincipals is the resolver for the updateAdmissionPolicyPrincipals field.
@@ -193,23 +200,32 @@ func (r *mutationResolver) UpdateAdmissionPolicyPrincipals(ctx context.Context, 
 	// 		CommandName: "UpdateAdmissionPolicyPrincipals", // may not need this
 	// 	},
 	// }
-	updatedAdmissionPolicy := &model.AdmissionPolicy{
-		ID:        id,
-		Name:      "",
-		Effect:    nil,
-		Type:      nil,
-		Principal: append([]*string{}, admissionPolicyPrincipals...),
-		Actions:   []*string{},
-		Resources: []*string{},
-	}
-	response, err := r.apiClient.MakeApiRequest(*updatedAdmissionPolicy, "UpdateAdmissionPolicyPrincipals", "PUT")
-	if err != nil {
-		return nil, fmt.Errorf("encountered an error while trying to PUT object: %v", err)
-	}
+	// updatedAdmissionPolicy := &model.AdmissionPolicy{
+	// 	ID:        id,
+	// 	Name:      "",
+	// 	Effect:    nil,
+	// 	Type:      nil,
+	// 	Principal: append([]*string{}, admissionPolicyPrincipals...),
+	// 	Actions:   []*string{},
+	// 	Resources: []*string{},
+	// }
+	// region API call
+	// response, err := r.apiClient.MakeApiRequest(*updatedAdmissionPolicy, "UpdateAdmissionPolicyPrincipals", "PUT")
+	// if err != nil {
+	// 	return nil, fmt.Errorf("encountered an error while trying to PUT object: %v", err)
+	// }
 
-	fmt.Printf("Successfully submitted PUT request for object %s", *response)
+	// fmt.Printf("Successfully submitted PUT request for object %s", *response)
+	// endregion API call
 	// return updateAdmissionPolicyPrincipalsModel, nil
-	return &model.AdmissionPolicy{}, nil
+	matchingPolicy := model.AdmissionPolicy{}
+	for _, v := range r.admissionPolicies {
+		if v.ID == id {
+			v.Principal = updateAdmissionPolicyPrincipalsModel.Principals
+			matchingPolicy = *v
+		}
+	}
+	return &matchingPolicy, nil
 }
 
 // UpdateAdmissionPolicyResources is the resolver for the updateAdmissionPolicyResources field.
@@ -234,23 +250,32 @@ func (r *mutationResolver) UpdateAdmissionPolicyResources(ctx context.Context, i
 	// 		CommandName: "UpdateAdmissionPolicyResources", // may not need this
 	// 	},
 	// }
-	updatedAdmissionPolicy := &model.AdmissionPolicy{
-		ID:        id,
-		Name:      "",
-		Effect:    nil,
-		Type:      nil,
-		Principal: []*string{},
-		Actions:   []*string{},
-		Resources: append([]*string{}, admissionPolicyResources...),
-	}
-	response, err := r.apiClient.MakeApiRequest(*updatedAdmissionPolicy, "UpdateAdmissionPolicyResources", "PUT")
-	if err != nil {
-		return nil, fmt.Errorf("encountered an error while trying to PUT object: %v", err)
-	}
+	// updatedAdmissionPolicy := &model.AdmissionPolicy{
+	// 	ID:        id,
+	// 	Name:      "",
+	// 	Effect:    nil,
+	// 	Type:      nil,
+	// 	Principal: []*string{},
+	// 	Actions:   []*string{},
+	// 	Resources: append([]*string{}, admissionPolicyResources...),
+	// }
+	// region API call
+	// response, err := r.apiClient.MakeApiRequest(*updatedAdmissionPolicy, "UpdateAdmissionPolicyResources", "PUT")
+	// if err != nil {
+	// 	return nil, fmt.Errorf("encountered an error while trying to PUT object: %v", err)
+	// }
 
-	fmt.Printf("Successfully submitted PUT request for object %s", *response)
+	// fmt.Printf("Successfully submitted PUT request for object %s", *response)
+	// endregion API call
 	// return updateAdmissionPolicyResourcesModel, nil
-	return &model.AdmissionPolicy{}, nil
+	matchingPolicy := model.AdmissionPolicy{}
+	for _, v := range r.admissionPolicies {
+		if v.ID == id {
+			v.Resources = updateAdmissionPolicyResourcesModel.Resources
+			matchingPolicy = *v
+		}
+	}
+	return &matchingPolicy, nil
 }
 
 // DeleteAdmissionPolicy is the resolver for the deleteAdmissionPolicy field.
@@ -266,22 +291,24 @@ func (r *mutationResolver) DeleteAdmissionPolicy(ctx context.Context, id string)
 	// 		CommandName: "DeleteAdmissionPolicy", // may not need this
 	// 	},
 	// }
-	updatedAdmissionPolicy := &model.AdmissionPolicy{
-		ID:        id,
-		Name:      "",
-		Effect:    nil,
-		Type:      nil,
-		Principal: []*string{},
-		Actions:   []*string{},
-		Resources: []*string{},
-	}
-	response, err := r.apiClient.MakeApiRequest(*updatedAdmissionPolicy, "DeleteAdmissionPolicy", "DELETE")
-	if err != nil {
-		return nil, fmt.Errorf("encountered an error while trying to DELETE object: %v", err)
-	}
+	// updatedAdmissionPolicy := &model.AdmissionPolicy{
+	// 	ID:        id,
+	// 	Name:      "",
+	// 	Effect:    nil,
+	// 	Type:      nil,
+	// 	Principal: []*string{},
+	// 	Actions:   []*string{},
+	// 	Resources: []*string{},
+	// }
+	// endregion API call
+	// response, err := r.apiClient.MakeApiRequest(*updatedAdmissionPolicy, "DeleteAdmissionPolicy", "DELETE")
+	// if err != nil {
+	// 	return nil, fmt.Errorf("encountered an error while trying to DELETE object: %v", err)
+	// }
+	// fmt.Printf("Successfully submitted DELETE request for object %s", *response)
+	// endregion API call
 	deleted = true
 
-	fmt.Printf("Successfully submitted DELETE request for object %s", *response)
 	return &deleted, nil
 }
 
