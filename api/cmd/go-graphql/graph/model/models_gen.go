@@ -9,13 +9,19 @@ import (
 )
 
 type AdmissionPolicy struct {
-	ID        string               `json:"id"`
+	ID        *string              `json:"id"`
 	Name      string               `json:"name"`
 	Effect    *Effect              `json:"effect"`
 	Type      *AdmissionPolicyType `json:"type"`
 	Principal []*string            `json:"principal"`
 	Actions   []*string            `json:"actions"`
 	Resources []*string            `json:"resources"`
+}
+
+type AdmissionPolicyAuthorization struct {
+	Principal           string  `json:"principal"`
+	AuthorizationResult bool    `json:"authorizationResult"`
+	ExpireTime          *string `json:"expireTime"`
 }
 
 type AdmissionPolicyInput struct {
@@ -26,6 +32,15 @@ type AdmissionPolicyInput struct {
 	Principal []*string            `json:"principal"`
 	Actions   []*string            `json:"actions"`
 	Resources []*string            `json:"resources"`
+}
+
+type AdmissionPolicyRelation struct {
+	ID         *string `json:"id"`
+	PolicyID   string  `json:"policyId"`
+	Effect     Effect  `json:"effect"`
+	Principal  string  `json:"principal"`
+	Action     *string `json:"action"`
+	ResourceID *string `json:"resourceId"`
 }
 
 type NewTodo struct {

@@ -7,12 +7,12 @@ import (
 	"net/http"
 	"os"
 
+	// "gitlab.com/2ndwatch/microservices/ms-admissions-service/api/cmd/go-graphql/graph/model"
 	"gitlab.com/2ndwatch/microservices/ms-admissions-service/api/cmd/go-graphql/graph/model"
 	"gitlab.com/2ndwatch/microservices/ms-admissions-service/api/pkg/pb/admissions"
 	uid "gitlab.com/2ndwatch/microservices/ms-admissions-service/api/pkg/pb/type/uuid"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/types/known/structpb"
-	// cmdr "gitlab.com/2ndwatch/microservices/apis/ms-api-commander/pkg/pb/commander"
 )
 
 type CommanderClient struct {
@@ -70,7 +70,7 @@ func convertAdmissionPolicyToProtoStruct(message model.AdmissionPolicy) structpb
 	}
 	effect := admissions.Effect(admissions.Effect_value[message.Effect.String()])
 	pbAdmissionsMessage := &admissions.AdmissionMessage{
-		Id:         &uid.UUID{Value: message.ID},
+		Id:         &uid.UUID{Value: *message.ID},
 		Name:       message.Name,
 		Effect:     effect,
 		Type:       admissions.AdmissionPolicyType(admissions.AdmissionPolicyType_value[message.Type.String()]),

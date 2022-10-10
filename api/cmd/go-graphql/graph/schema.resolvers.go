@@ -18,7 +18,7 @@ func (r *mutationResolver) CreateAdmissionPolicy(ctx context.Context, admissionP
 	policyUuid := strings.Replace(uuid.New().String(), "-", "", -1)
 
 	createdAdmissionPolicy := &model.AdmissionPolicy{
-		ID:        policyUuid,
+		ID:        &policyUuid,
 		Name:      admissionPolicy.Name,
 		Effect:    admissionPolicy.Effect,
 		Type:      admissionPolicy.Type,
@@ -30,47 +30,13 @@ func (r *mutationResolver) CreateAdmissionPolicy(ctx context.Context, admissionP
 	r.admissionPolicies = append(r.admissionPolicies, createdAdmissionPolicy)
 
 	// region Database Operations
-	// TODO: this is a naive implementation of the database interaction logic, we should investigate GQL data loaders to scale more efficiently as queries increase
-	// ConnectDB()
-	// statement, err := Db.Prepare(`INSERT INTO AdmissionPolicy (UUID, Name, Type) VALUES (?, ?, ?)`)
-	// if err != nil {
-	// 	return nil, err
-	// }
+	insert_id, err := createdAdmissionPolicy.Insert()
+	if err != nil {
+		return nil, err
+	}
 
-	// result, err := statement.Exec(createdAdmissionPolicy.ID, createdAdmissionPolicy.Name, createdAdmissionPolicy.Type)
-	// if err != nil {
-	// 	return nil, err
-	// } else {
-	// 	insert_id, err := result.LastInsertId()
-	// 	if err != nil {
-	// 		return nil, err
-	// 	}
-	// 	fmt.Printf("Successfully inserted supplied admission policy %d", insert_id)
-	// 	// iterate principals, actions, and resources and insert each into AdmissionPolicyRelation
-	// 	statement, err := Db.Prepare(`INSERT INTO AdmissionPolicyRelation (PolicyId, Effect, Principal, Action, ResourceId) Values (?, ?, ?, ?, ?)`)
-	// 	if err != nil {
-	// 		return nil, err
-	// 	}
-	// 	// Test below thoroughly as it seems clunky
-	// 	for _, principal := range createdAdmissionPolicy.Principal {
-	// 		if principal != nil {
-	// 			for _, resource := range createdAdmissionPolicy.Resources {
-	// 				if resource != nil {
-	// 					for _, action := range createdAdmissionPolicy.Actions {
-	// 						if action != nil {
-	// 							_, err := statement.Exec(insert_id, createdAdmissionPolicy.Effect, principal, action, resource)
-	// 							if err != nil {
-	// 								return nil, err
-	// 							}
-	// 						}
-	// 					}
-	// 				}
-	// 			}
-	// 		}
-	// 	}
-
-	// }
-	// endregion Database Operations
+	fmt.Println(insert_id)
+	// enddregion Database Operations
 
 	// encode input struct
 	// encodedBlob, err := EncodeToString(createdAdmissionPolicy)
@@ -170,7 +136,7 @@ func (r *mutationResolver) UpdateAdmissionPolicyActions(ctx context.Context, id 
 	// return updateAdmissionPolicyActionsModel, nil
 	matchingPolicy := model.AdmissionPolicy{}
 	for _, v := range r.admissionPolicies {
-		if v.ID == id {
+		if *v.ID == id {
 			v.Actions = updateAdmissionPolicyActionsModel.Actions
 			matchingPolicy = *v
 		}
@@ -220,7 +186,7 @@ func (r *mutationResolver) UpdateAdmissionPolicyPrincipals(ctx context.Context, 
 	// return updateAdmissionPolicyPrincipalsModel, nil
 	matchingPolicy := model.AdmissionPolicy{}
 	for _, v := range r.admissionPolicies {
-		if v.ID == id {
+		if *v.ID == id {
 			v.Principal = updateAdmissionPolicyPrincipalsModel.Principals
 			matchingPolicy = *v
 		}
@@ -270,7 +236,7 @@ func (r *mutationResolver) UpdateAdmissionPolicyResources(ctx context.Context, i
 	// return updateAdmissionPolicyResourcesModel, nil
 	matchingPolicy := model.AdmissionPolicy{}
 	for _, v := range r.admissionPolicies {
-		if v.ID == id {
+		if *v.ID == id {
 			v.Resources = updateAdmissionPolicyResourcesModel.Resources
 			matchingPolicy = *v
 		}
@@ -357,6 +323,42 @@ func (r *queryResolver) AdmissionPolicies(ctx context.Context, principal string,
 		return ret, nil
 	}
 	return r.admissionPolicies, nil
+}
+
+// AdmissionPolicy is the resolver for the admissionPolicy field.
+func (r *queryResolver) AdmissionPolicy(ctx context.Context, id string) (*model.AdmissionPolicy, error) {
+	// panic(fmt.Errorf("not implemented: AdmissionPolicy - admissionPolicy"))
+	_, err := uuid.Parse((id))
+	if err != nil {
+		return nil, fmt.Errorf("invalid identifier: %s", id)
+	}
+	var tempItem model.AdmissionPolicy
+	// for index := range r.admissionPolicies {
+	// 	if *r.admissionPolicies[index].ID == id {
+	// 		returnItem = *r.admissionPolicies[index]
+	// 	}
+	// }
+	tempItem.ID = &id
+	returnItem, err := tempItem.Get()
+	if err != nil {
+		return nil, err
+	}
+	return returnItem, nil
+}
+
+// AdmissionPolicyRelation is the resolver for the admissionPolicyRelation field.
+func (r *queryResolver) AdmissionPolicyRelation(ctx context.Context, principal *string, action *string, resourceID *string) (*model.AdmissionPolicyRelation, error) {
+	panic(fmt.Errorf("not implemented: AdmissionPolicyRelation - admissionPolicyRelation"))
+}
+
+// AdmissionPolicyRelations is the resolver for the admissionPolicyRelations field.
+func (r *queryResolver) AdmissionPolicyRelations(ctx context.Context, principal *string, action *string, resourceID *string) ([]*model.AdmissionPolicyRelation, error) {
+	panic(fmt.Errorf("not implemented: AdmissionPolicyRelations - admissionPolicyRelations"))
+}
+
+// AdmissionPolicyAuthorizationCheck is the resolver for the admissionPolicyAuthorizationCheck field.
+func (r *queryResolver) AdmissionPolicyAuthorizationCheck(ctx context.Context, principal string, action string, resourceID string, ttl *string) (*model.AdmissionPolicyAuthorization, error) {
+	panic(fmt.Errorf("not implemented: AdmissionPolicyAuthorizationCheck - admissionPolicyAuthorizationCheck"))
 }
 
 // Todos is the resolver for the todos field.
