@@ -8,7 +8,7 @@ import (
 
 func (admissionPolicyRelation AdmissionPolicyRelation) Insert() (int64, error) {
 	database.ConnectDB()
-	statement, err := database.Db.Prepare(`INSERT INTO AdmissionPolicyRelation (PolicyId, Effect, Principal, Action, Resourceid) VALUES (?, ?, ?, ?, ?)`)
+	statement, err := database.Db.Prepare(`INSERT INTO AdmissionPolicyRelation (PolicyUuid, Effect, Principal, Action, Resourceid) VALUES (?, ?, ?, ?, ?)`)
 	if err != nil {
 		return 0, err
 	}
@@ -34,7 +34,7 @@ func (admissionPolicyRelation AdmissionPolicyRelation) Insert() (int64, error) {
 func (admissionPolicyRelation AdmissionPolicyRelation) Get() (*AdmissionPolicyRelation, error) {
 	// dbStatement := fmt.Sprintf("select ap.UUID as Id, ap.Name, ap.Type as AdmissionPolicyType, apr.Principal as Principal, apr.Action as Action, apr.ResourceId as Resource from AdmissionPolicy ap join AdmissionPolicyRelation apr on ap.Id = apr.PolicyId where ap.UUID = '%s'", *admissionPolicy.ID)
 	database.ConnectDB()
-	statement, err := database.Db.Prepare(fmt.Sprintf("select ap.Id as ID, ap.PolicyId, ap.Effect, apr.Principal as Principal, apr.Action, apr.ResourceId from AdmissionPolicyRelation where Id = '%s'", admissionPolicyRelation.ID))
+	statement, err := database.Db.Prepare(fmt.Sprintf("select Id, PolicyUuid, Effect, Principal, Action, ResourceId from AdmissionPolicyRelation where Id = '%s'", *admissionPolicyRelation.ID))
 	if err != nil {
 		return nil, err
 	}
@@ -53,13 +53,34 @@ func (admissionPolicyRelation AdmissionPolicyRelation) Get() (*AdmissionPolicyRe
 		}
 		result = res
 	}
-	// var fetchedAdmissionPolicy AdmissionPolicy
-	// result, err := database.Db.Query(dbStatement)
-	// defer result.Close()
-	// err := database.Db.QueryRow(dbStatement).Scan(&fetchedAdmissionPolicy)
 	if err != nil {
 		return nil, err
 	}
 	return &result, nil
+}
 
+func GetAdmissionPolicyRelationsForPolicyUuid(policyUuid string) ([]AdmissionPolicyRelation, error) {
+	database.ConnectDB()
+	statement, err := database.Db.Prepare(fmt.Sprintf("select Id, PolicyUuid, Effect, Principal, Action, ResourceId from AdmissionPolicyRelation where PolicyUuid = '%s'", policyUuid))
+	if err != nil {
+		return nil, err
+	}
+	defer statement.Close()
+	rows, err := statement.Query()
+	if err != nil {
+		return nil, err
+	}
+	var result []AdmissionPolicyRelation
+	for rows.Next() {
+		var res AdmissionPolicyRelation
+		err := rows.Scan(&res.ID, &res.PolicyID, &res.Effect, &res.Principal, &res.Action, &res.ResourceID)
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, res)
+	}
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
 }

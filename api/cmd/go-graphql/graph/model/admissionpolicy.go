@@ -2,7 +2,6 @@ package model
 
 import (
 	"fmt"
-	"strconv"
 
 	database "gitlab.com/2ndwatch/microservices/ms-admissions-service/api/pkg/services"
 )
@@ -32,7 +31,7 @@ func (admissionPolicy AdmissionPolicy) Insert() (int64, error) {
 						for _, action := range admissionPolicy.Actions {
 							if action != nil {
 								createAdmissionPolicyRelation := &AdmissionPolicyRelation{
-									PolicyID:   strconv.FormatInt(insert_id, 10),
+									PolicyID:   *admissionPolicy.ID,
 									Effect:     *admissionPolicy.Effect,
 									Principal:  *principal,
 									Action:     action,
@@ -78,7 +77,7 @@ func (admissionPolicy AdmissionPolicy) Update() (int64, error) {
 						for _, action := range admissionPolicy.Actions {
 							if action != nil {
 								createAdmissionPolicyRelation := &AdmissionPolicyRelation{
-									PolicyID:   strconv.FormatInt(insert_id, 10),
+									PolicyID:   *admissionPolicy.ID,
 									Effect:     *admissionPolicy.Effect,
 									Principal:  *principal,
 									Action:     action,
@@ -101,7 +100,7 @@ func (admissionPolicy AdmissionPolicy) Update() (int64, error) {
 func (admissionPolicy AdmissionPolicy) Get() (*AdmissionPolicy, error) {
 	// dbStatement := fmt.Sprintf("select ap.UUID as Id, ap.Name, ap.Type as AdmissionPolicyType, apr.Principal as Principal, apr.Action as Action, apr.ResourceId as Resource from AdmissionPolicy ap join AdmissionPolicyRelation apr on ap.Id = apr.PolicyId where ap.UUID = '%s'", *admissionPolicy.ID)
 	database.ConnectDB()
-	statement, err := database.Db.Prepare(fmt.Sprintf("select ap.UUID as ID, ap.Name, ap.Type, apr.Effect as Effect, apr.Principal as Principal from AdmissionPolicy ap join AdmissionPolicyRelation apr on ap.Id = apr.PolicyId where UUID = '%s'", *admissionPolicy.ID))
+	statement, err := database.Db.Prepare(fmt.Sprintf("select ap.UUID as ID, ap.Name, ap.Type, apr.Effect as Effect from AdmissionPolicy ap join AdmissionPolicyRelation apr on ap.UUID = apr.PolicyUuid where UUID = '%s'", *admissionPolicy.ID))
 	if err != nil {
 		return nil, err
 	}
@@ -119,12 +118,22 @@ func (admissionPolicy AdmissionPolicy) Get() (*AdmissionPolicy, error) {
 			return nil, err
 		}
 		result = res
+		admissionPolicyRelations, err := GetAdmissionPolicyRelationsForPolicyUuid(*admissionPolicy.ID)
+		if err != nil {
+			return nil, err
+		}
+		principals := []*string{}
+		actions := []*string{}
+		resources := []*string{}
+		for index := range admissionPolicyRelations {
+			principals = append(principals, &admissionPolicyRelations[index].Principal)
+			actions = append(actions, admissionPolicyRelations[index].Action)
+			resources = append(resources, admissionPolicyRelations[index].ResourceID)
+		}
+		result.Principal = principals
+		result.Actions = actions
+		result.Resources = resources
 	}
-	// var fetchedAdmissionPolicy AdmissionPolicy
-	// result, err := database.Db.Query(dbStatement)
-	// defer result.Close()
-	// https://zetcode.com/golang/mysql/
-	// err := database.Db.QueryRow(dbStatement).Scan(&fetchedAdmissionPolicy)
 	if err != nil {
 		return nil, err
 	}
