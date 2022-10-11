@@ -348,7 +348,16 @@ func (r *queryResolver) AdmissionPolicy(ctx context.Context, id string) (*model.
 
 // AdmissionPolicyRelation is the resolver for the admissionPolicyRelation field.
 func (r *queryResolver) AdmissionPolicyRelation(ctx context.Context, principal *string, action *string, resourceID *string) (*model.AdmissionPolicyRelation, error) {
-	panic(fmt.Errorf("not implemented: AdmissionPolicyRelation - admissionPolicyRelation"))
+	tempItem := &model.AdmissionPolicyRelation{
+		Principal:  *principal,
+		Action:     action,
+		ResourceID: resourceID,
+	}
+	returnItem, err := tempItem.GetByPrincipalActionResource()
+	if err != nil {
+		return nil, err
+	}
+	return returnItem, nil
 }
 
 // AdmissionPolicyRelations is the resolver for the admissionPolicyRelations field.

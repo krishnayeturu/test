@@ -47,7 +47,6 @@ func (admissionPolicyRelation AdmissionPolicyRelation) Get() (*AdmissionPolicyRe
 	for rows.Next() {
 		var res AdmissionPolicyRelation
 		err := rows.Scan(&res.ID, &res.PolicyID, &res.Effect, &res.Principal, &res.Action, &res.ResourceID)
-		// TODO: this will require ORM addition or join statements to retrieve principal, actions, and resources
 		if err != nil {
 			return nil, err
 		}
@@ -83,4 +82,30 @@ func GetAdmissionPolicyRelationsForPolicyUuid(policyUuid string) ([]AdmissionPol
 		return nil, err
 	}
 	return result, nil
+}
+
+func (admissionPolicyRelation AdmissionPolicyRelation) GetByPrincipalActionResource() (*AdmissionPolicyRelation, error) {
+	database.ConnectDB()
+	statement, err := database.Db.Prepare(fmt.Sprintf("select Id, PolicyUuid, Effect, Principal, Action, ResourceId from AdmissionPolicyRelation where Principal = '%s' and Action = '%s' and ResourceId = '%s'", admissionPolicyRelation.Principal, *admissionPolicyRelation.Action, *admissionPolicyRelation.ResourceID))
+	if err != nil {
+		return nil, err
+	}
+	defer statement.Close()
+	rows, err := statement.Query()
+	if err != nil {
+		return nil, err
+	}
+	var result AdmissionPolicyRelation
+	for rows.Next() {
+		var res AdmissionPolicyRelation
+		err := rows.Scan(&res.ID, &res.PolicyID, &res.Effect, &res.Principal, &res.Action, &res.ResourceID)
+		if err != nil {
+			return nil, err
+		}
+		result = res
+	}
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
 }
