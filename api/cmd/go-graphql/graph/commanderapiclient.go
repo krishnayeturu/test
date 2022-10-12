@@ -97,7 +97,7 @@ func (apiClient *CommanderClient) MakeApiRequest(message model.AdmissionPolicy, 
 	}
 
 	if requestType == "" {
-		return nil, fmt.Errorf("must specific request type (POST, PUT, DELETE)")
+		return nil, fmt.Errorf("must specify request type (POST, PUT, DELETE)")
 	}
 	// TODO: test if below will properly represent commandParams when sending to API -- seems unlikely
 	byte_slice := []byte{}

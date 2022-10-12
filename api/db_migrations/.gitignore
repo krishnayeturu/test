@@ -1,0 +1,15 @@
+# Local env config
+flyway/local.conf
+
+# IDE folders
+.idea/
+.vscode/
+
+# SublimeText
+*.sublime-project
+*.sublime-workspace
+
+# Misc Files
+*.DS_Store
+.vagrant
+ubuntu-xenial*
