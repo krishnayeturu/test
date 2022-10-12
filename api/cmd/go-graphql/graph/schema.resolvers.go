@@ -28,7 +28,6 @@ func (r *mutationResolver) CreateAdmissionPolicy(ctx context.Context, admissionP
 		Resources: append([]*string{}, admissionPolicy.Resources...),
 	}
 	// // TODO: Send marshalled JSON object to Commander API for database inserts here
-	r.admissionPolicies = append(r.admissionPolicies, createdAdmissionPolicy)
 
 	// region Database Operations
 	insert_id, err := createdAdmissionPolicy.Insert()
@@ -39,60 +38,12 @@ func (r *mutationResolver) CreateAdmissionPolicy(ctx context.Context, admissionP
 	fmt.Println(insert_id)
 	// enddregion Database Operations
 
-	// encode input struct
-	// encodedBlob, err := EncodeToString(createdAdmissionPolicy)
-	// if err != nil {
-	// 	return nil, fmt.Errorf("encountered an error while encoding input object: %v", err)
-	// }
-	// messageData := CommanderMessage{
-	// 	Action: "CreateAdmissionPolicy",
-	// 	Data: CommanderMessageData{
-	// 		MessageUUID: strings.Replace(uuid.New().String(), "-", "", -1),
-	// 		DataBlob:    encodedBlob,
-	// 		CommandName: "CreateAdmissionPolicy",
-	// 	},
-	// }
-
-	// uuid := &uid.UUID{Value: policyUuid}
-	// effect := admissions.Effect(admissions.Effect_value[admissionPolicy.Effect.String()])
-	// policyType := admissions.AdmissionPolicyType(admissions.AdmissionPolicyType_value[admissionPolicy.Type.String()])
-	// princips := []string{}
-	// for _, val := range admissionPolicy.Principal {
-	// 	if val != nil {
-	// 		princips = append(princips, *val)
-	// 	}
-	// }
-
-	// acts := []string{}
-	// for _, val := range admissionPolicy.Actions {
-	// 	if val != nil {
-	// 		acts = append(acts, *val)
-	// 	}
-	// }
-
-	// ress := []string{}
-	// for _, val := range admissionPolicy.Resources {
-	// 	if val != nil {
-	// 		ress = append(ress, *val)
-	// 	}
-	// }
-
-	// pbAdmissionsMessage := &admissions.AdmissionMessage{
-	// 	Id:         uuid,
-	// 	Name:       admissionPolicy.Name,
-	// 	Effect:     effect,
-	// 	Type:       policyType,
-	// 	Principals: princips,
-	// 	Actions:    acts,
-	// 	Resources:  ress,
-	// }
-
 	// region API call
-	// response, err := r.apiClient.MakeApiRequest(*createdAdmissionPolicy, "CreateAdmissionPolicy", "POST")
-	// if err != nil {
-	// 	return nil, fmt.Errorf("encountered an error while trying to POST object: %v", err)
-	// }
-	// fmt.Printf("Successfully submitted POST request for object %s", *response)
+	response, err := r.apiClient.MakeApiRequest(*createdAdmissionPolicy, "CreateAdmissionPolicy", "POST")
+	if err != nil {
+		return nil, fmt.Errorf("encountered an error while trying to POST object: %v", err)
+	}
+	fmt.Printf("Successfully submitted POST request for object %s", *response)
 	// endregion API call
 	return createdAdmissionPolicy, nil
 }
@@ -111,6 +62,14 @@ func (r *mutationResolver) UpdateAdmissionPolicy(ctx context.Context, admissionP
 		return nil, err
 	}
 
+	// region API call
+	// response, err := r.apiClient.MakeApiRequest(*updatedAdmissionPolicy, "UpdateAdmissionPolicy", "PUT")
+	// if err != nil {
+	// 	return nil, fmt.Errorf("encountered an error while trying to PUT object: %v", err)
+	// }
+	// fmt.Printf("Successfully submitted PUT request for object %s", *response)
+	// endregion API call
+
 	return result, nil
 }
 
@@ -126,25 +85,9 @@ func (r *mutationResolver) DeleteAdmissionPolicy(ctx context.Context, id string)
 	if err != nil { // NOOP - nothing to delete
 		return &deleted, nil
 	}
-	// messageData := CommanderMessage{
-	// 	Action: "DeleteAdmissionPolicy",
-	// 	Data: CommanderMessageData{
-	// 		MessageUUID: strings.Replace(uuid.New().String(), "-", "", -1),
-	// 		DataBlob:    id,
-	// 		CommandName: "DeleteAdmissionPolicy", // may not need this
-	// 	},
-	// }
-	// updatedAdmissionPolicy := &model.AdmissionPolicy{
-	// 	ID:        id,
-	// 	Name:      "",
-	// 	Effect:    nil,
-	// 	Type:      nil,
-	// 	Principal: []*string{},
-	// 	Actions:   []*string{},
-	// 	Resources: []*string{},
-	// }
-	// endregion API call
-	// response, err := r.apiClient.MakeApiRequest(*updatedAdmissionPolicy, "DeleteAdmissionPolicy", "DELETE")
+
+	// region API call
+	// response, err := r.apiClient.MakeApiRequest(*deletedAdmissionPolicy, "DeleteAdmissionPolicy", "DELETE")
 	// if err != nil {
 	// 	return nil, fmt.Errorf("encountered an error while trying to DELETE object: %v", err)
 	// }

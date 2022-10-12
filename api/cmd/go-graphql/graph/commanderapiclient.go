@@ -2,6 +2,7 @@ package graph
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -16,11 +17,6 @@ import (
 )
 
 type CommanderClient struct {
-}
-
-type CommanderMessage struct {
-	Action string               `json:"action"`
-	Data   CommanderMessageData `json:"data"`
 }
 
 type CommanderMessageData struct {
@@ -47,7 +43,7 @@ func (apiClient *CommanderClient) fetchXApiKeyHeaders() string {
 	return "foo"
 }
 
-func convertAdmissionPolicyToProtoStruct(message model.AdmissionPolicy) structpb.Struct {
+func convertAdmissionPolicyToProtoStruct(message model.AdmissionPolicy) (*structpb.Struct, error) {
 	principals := []string{}
 	for _, val := range message.Principal {
 		if val != nil {
@@ -80,8 +76,15 @@ func convertAdmissionPolicyToProtoStruct(message model.AdmissionPolicy) structpb
 	}
 
 	msg := &structpb.Struct{}
-	protojson.Unmarshal([]byte(pbAdmissionsMessage.String()), msg)
-	return *msg
+	marshalledMessage, err := json.Marshal(pbAdmissionsMessage)
+	if err != nil {
+		return nil, err
+	}
+	err = protojson.Unmarshal(marshalledMessage, msg)
+	if err != nil {
+		return nil, err
+	}
+	return msg, nil
 }
 
 //endregion private funcs
@@ -90,19 +93,28 @@ func convertAdmissionPolicyToProtoStruct(message model.AdmissionPolicy) structpb
 func (apiClient *CommanderClient) MakeApiRequest(message model.AdmissionPolicy, action string, requestType string) (*string, error) {
 
 	// requestBody, err := json.Marshal(message)
-	requestBody := convertAdmissionPolicyToProtoStruct(message)
+	requestBody, err := convertAdmissionPolicyToProtoStruct(message)
+	if err != nil {
+		return nil, err
+	}
 	commandParams := &admissions.CommandParams{
 		Action: action,
-		Data:   &requestBody,
+		Data:   requestBody,
+		Sync:   true, // true for synchronous request
 	}
 
 	if requestType == "" {
 		return nil, fmt.Errorf("must specify request type (POST, PUT, DELETE)")
 	}
 	// TODO: test if below will properly represent commandParams when sending to API -- seems unlikely
-	byte_slice := []byte{}
-	protojson.Unmarshal(byte_slice, commandParams)
-	request, err := http.NewRequest(requestType, targetApiEndpoint, bytes.NewBuffer(byte_slice))
+	marshalledCommandParams, err := json.Marshal(commandParams)
+	if err != nil {
+		return nil, err
+	}
+	msg := &structpb.Struct{}
+	protojson.Unmarshal(marshalledCommandParams, msg)
+	// request, err := http.NewRequest(requestType, targetApiEndpoint, bytes.NewBuffer(requestBody))
+	request, err := http.NewRequest(requestType, targetApiEndpoint, bytes.NewBuffer(marshalledCommandParams))
 
 	if err != nil {
 		return nil, err
