@@ -9,7 +9,6 @@ import (
 )
 
 type Resolver struct {
-	todos             []*model.Todo
 	admissionPolicies []*model.AdmissionPolicy
 	AdmissionPolicy   *model.AdmissionPolicy
 	apiClient         *CommanderClient

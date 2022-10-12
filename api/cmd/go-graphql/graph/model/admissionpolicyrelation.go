@@ -6,14 +6,14 @@ import (
 	database "gitlab.com/2ndwatch/microservices/ms-admissions-service/api/pkg/services"
 )
 
-func (admissionPolicyRelation AdmissionPolicyRelation) Insert() (int64, error) {
+func (admissionPolicyStatement AdmissionPolicyStatement) Insert() (int64, error) {
 	database.ConnectDB()
-	statement, err := database.Db.Prepare(`INSERT INTO AdmissionPolicyRelation (PolicyUuid, Effect, Principal, Action, Resourceid) VALUES (?, ?, ?, ?, ?)`)
+	statement, err := database.Db.Prepare(`INSERT INTO AdmissionPolicyStatement (PolicyUuid, Effect, Principal, Action, Resourceid) VALUES (?, ?, ?, ?, ?)`)
 	if err != nil {
 		return 0, err
 	}
 
-	result, err := statement.Exec(admissionPolicyRelation.PolicyID, admissionPolicyRelation.Effect, admissionPolicyRelation.Principal, admissionPolicyRelation.Action, admissionPolicyRelation.ResourceID)
+	result, err := statement.Exec(admissionPolicyStatement.PolicyID, admissionPolicyStatement.Effect, admissionPolicyStatement.Principal, admissionPolicyStatement.Action, admissionPolicyStatement.ResourceID)
 	if err != nil {
 		return -1, err
 	} else {
@@ -31,10 +31,10 @@ func (admissionPolicyRelation AdmissionPolicyRelation) Insert() (int64, error) {
 // 	// database.ConnectDB()
 // }
 
-func (admissionPolicyRelation AdmissionPolicyRelation) Get() (*AdmissionPolicyRelation, error) {
-	// dbStatement := fmt.Sprintf("select ap.UUID as Id, ap.Name, ap.Type as AdmissionPolicyType, apr.Principal as Principal, apr.Action as Action, apr.ResourceId as Resource from AdmissionPolicy ap join AdmissionPolicyRelation apr on ap.Id = apr.PolicyId where ap.UUID = '%s'", *admissionPolicy.ID)
+func (admissionPolicyStatement AdmissionPolicyStatement) Get() (*AdmissionPolicyStatement, error) {
+	// dbStatement := fmt.Sprintf("select ap.UUID as Id, ap.Name, ap.Type as AdmissionPolicyType, apr.Principal as Principal, apr.Action as Action, apr.ResourceId as Resource from AdmissionPolicy ap join AdmissionPolicyStatement apr on ap.Id = apr.PolicyId where ap.UUID = '%s'", *admissionPolicy.ID)
 	database.ConnectDB()
-	statement, err := database.Db.Prepare(fmt.Sprintf("select Id, PolicyUuid, Effect, Principal, Action, ResourceId from AdmissionPolicyRelation where Id = '%s'", *admissionPolicyRelation.ID))
+	statement, err := database.Db.Prepare(fmt.Sprintf("select Id, PolicyUuid, Effect, Principal, Action, ResourceId from AdmissionPolicyStatement where Id = '%s'", *admissionPolicyStatement.ID))
 	if err != nil {
 		return nil, err
 	}
@@ -43,9 +43,9 @@ func (admissionPolicyRelation AdmissionPolicyRelation) Get() (*AdmissionPolicyRe
 	if err != nil {
 		return nil, err
 	}
-	var result AdmissionPolicyRelation
+	var result AdmissionPolicyStatement
 	for rows.Next() {
-		var res AdmissionPolicyRelation
+		var res AdmissionPolicyStatement
 		err := rows.Scan(&res.ID, &res.PolicyID, &res.Effect, &res.Principal, &res.Action, &res.ResourceID)
 		if err != nil {
 			return nil, err
@@ -58,9 +58,9 @@ func (admissionPolicyRelation AdmissionPolicyRelation) Get() (*AdmissionPolicyRe
 	return &result, nil
 }
 
-func GetAdmissionPolicyRelationsForPolicyUuid(policyUuid string) ([]AdmissionPolicyRelation, error) {
+func GetAdmissionPolicyStatementsForPolicyUuid(policyUuid string) ([]AdmissionPolicyStatement, error) {
 	database.ConnectDB()
-	statement, err := database.Db.Prepare(fmt.Sprintf("select Id, PolicyUuid, Effect, Principal, Action, ResourceId from AdmissionPolicyRelation where PolicyUuid = '%s'", policyUuid))
+	statement, err := database.Db.Prepare(fmt.Sprintf("select Id, PolicyUuid, Effect, Principal, Action, ResourceId from AdmissionPolicyStatement where PolicyUuid = '%s'", policyUuid))
 	if err != nil {
 		return nil, err
 	}
@@ -69,9 +69,9 @@ func GetAdmissionPolicyRelationsForPolicyUuid(policyUuid string) ([]AdmissionPol
 	if err != nil {
 		return nil, err
 	}
-	var result []AdmissionPolicyRelation
+	var result []AdmissionPolicyStatement
 	for rows.Next() {
-		var res AdmissionPolicyRelation
+		var res AdmissionPolicyStatement
 		err := rows.Scan(&res.ID, &res.PolicyID, &res.Effect, &res.Principal, &res.Action, &res.ResourceID)
 		if err != nil {
 			return nil, err
@@ -84,9 +84,9 @@ func GetAdmissionPolicyRelationsForPolicyUuid(policyUuid string) ([]AdmissionPol
 	return result, nil
 }
 
-func (admissionPolicyRelation AdmissionPolicyRelation) GetByPrincipalActionResource() (*AdmissionPolicyRelation, error) {
+func (admissionPolicyStatement AdmissionPolicyStatement) GetByPrincipalActionResource() (*AdmissionPolicyStatement, error) {
 	database.ConnectDB()
-	statement, err := database.Db.Prepare(fmt.Sprintf("select Id, PolicyUuid, Effect, Principal, Action, ResourceId from AdmissionPolicyRelation where Principal = '%s' and Action = '%s' and ResourceId = '%s'", admissionPolicyRelation.Principal, *admissionPolicyRelation.Action, *admissionPolicyRelation.ResourceID))
+	statement, err := database.Db.Prepare(fmt.Sprintf("select Id, PolicyUuid, Effect, Principal, Action, ResourceId from AdmissionPolicyStatement where Principal = '%s' and Action = '%s' and ResourceId = '%s'", admissionPolicyStatement.Principal, *admissionPolicyStatement.Action, *admissionPolicyStatement.ResourceID))
 	if err != nil {
 		return nil, err
 	}
@@ -95,9 +95,9 @@ func (admissionPolicyRelation AdmissionPolicyRelation) GetByPrincipalActionResou
 	if err != nil {
 		return nil, err
 	}
-	var result AdmissionPolicyRelation
+	var result AdmissionPolicyStatement
 	for rows.Next() {
-		var res AdmissionPolicyRelation
+		var res AdmissionPolicyStatement
 		err := rows.Scan(&res.ID, &res.PolicyID, &res.Effect, &res.Principal, &res.Action, &res.ResourceID)
 		if err != nil {
 			return nil, err
@@ -106,6 +106,9 @@ func (admissionPolicyRelation AdmissionPolicyRelation) GetByPrincipalActionResou
 	}
 	if err != nil {
 		return nil, err
+	}
+	if result.ID == nil {
+		return nil, nil
 	}
 	return &result, nil
 }

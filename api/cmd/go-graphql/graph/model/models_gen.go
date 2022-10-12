@@ -34,30 +34,13 @@ type AdmissionPolicyInput struct {
 	Resources []*string            `json:"resources"`
 }
 
-type AdmissionPolicyRelation struct {
+type AdmissionPolicyStatement struct {
 	ID         *string `json:"id"`
 	PolicyID   string  `json:"policyId"`
 	Effect     Effect  `json:"effect"`
 	Principal  string  `json:"principal"`
 	Action     *string `json:"action"`
 	ResourceID *string `json:"resourceId"`
-}
-
-type NewTodo struct {
-	Text   string `json:"text"`
-	UserID string `json:"userId"`
-}
-
-type Todo struct {
-	ID   string `json:"id"`
-	Text string `json:"text"`
-	Done bool   `json:"done"`
-	User *User  `json:"user"`
-}
-
-type User struct {
-	ID   string `json:"id"`
-	Name string `json:"name"`
 }
 
 type AdmissionPolicyType string

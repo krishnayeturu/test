@@ -7,6 +7,7 @@ import (
 	"context"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/google/uuid"
 	"gitlab.com/2ndwatch/microservices/ms-admissions-service/api/cmd/go-graphql/graph/generated"
@@ -278,20 +279,6 @@ func (r *mutationResolver) DeleteAdmissionPolicy(ctx context.Context, id string)
 	return &deleted, nil
 }
 
-// CreateTodo is the resolver for the createTodo field.
-func (r *mutationResolver) CreateTodo(ctx context.Context, input model.NewTodo) (*model.Todo, error) {
-	todoUuid := strings.Replace(uuid.New().String(), "-", "", -1)
-	userUuid := strings.Replace(uuid.New().String(), "-", "", -1)
-
-	todo := &model.Todo{
-		Text: input.Text,
-		ID:   todoUuid,
-		User: &model.User{ID: userUuid, Name: fmt.Sprintf("user '%s'", input.UserID)},
-	}
-	r.todos = append(r.todos, todo)
-	return todo, nil
-}
-
 // AdmissionPolicies is the resolver for the admissionPolicies field.
 func (r *queryResolver) AdmissionPolicies(ctx context.Context, principal string, policyType *model.AdmissionPolicyType, policyName *string) ([]*model.AdmissionPolicy, error) {
 	if principal != "" { // filter for admission policies w/ principals matching the provided principal string
@@ -346,9 +333,9 @@ func (r *queryResolver) AdmissionPolicy(ctx context.Context, id string) (*model.
 	return returnItem, nil
 }
 
-// AdmissionPolicyRelation is the resolver for the admissionPolicyRelation field.
-func (r *queryResolver) AdmissionPolicyRelation(ctx context.Context, principal *string, action *string, resourceID *string) (*model.AdmissionPolicyRelation, error) {
-	tempItem := &model.AdmissionPolicyRelation{
+// AdmissionPolicyStatement is the resolver for the admissionPolicyStatement field.
+func (r *queryResolver) AdmissionPolicyStatement(ctx context.Context, principal *string, action *string, resourceID *string) (*model.AdmissionPolicyStatement, error) {
+	tempItem := &model.AdmissionPolicyStatement{
 		Principal:  *principal,
 		Action:     action,
 		ResourceID: resourceID,
@@ -360,19 +347,37 @@ func (r *queryResolver) AdmissionPolicyRelation(ctx context.Context, principal *
 	return returnItem, nil
 }
 
-// AdmissionPolicyRelations is the resolver for the admissionPolicyRelations field.
-func (r *queryResolver) AdmissionPolicyRelations(ctx context.Context, principal *string, action *string, resourceID *string) ([]*model.AdmissionPolicyRelation, error) {
-	panic(fmt.Errorf("not implemented: AdmissionPolicyRelations - admissionPolicyRelations"))
+// AdmissionPolicyStatements is the resolver for the admissionPolicyStatements field.
+func (r *queryResolver) AdmissionPolicyStatements(ctx context.Context, principal *string, action *string, resourceID *string) ([]*model.AdmissionPolicyStatement, error) {
+	panic(fmt.Errorf("not implemented: AdmissionPolicyStatements - admissionPolicyStatements"))
 }
 
 // AdmissionPolicyAuthorizationCheck is the resolver for the admissionPolicyAuthorizationCheck field.
-func (r *queryResolver) AdmissionPolicyAuthorizationCheck(ctx context.Context, principal string, action string, resourceID string, ttl *string) (*model.AdmissionPolicyAuthorization, error) {
-	panic(fmt.Errorf("not implemented: AdmissionPolicyAuthorizationCheck - admissionPolicyAuthorizationCheck"))
-}
-
-// Todos is the resolver for the todos field.
-func (r *queryResolver) Todos(ctx context.Context) ([]*model.Todo, error) {
-	return r.todos, nil
+func (r *queryResolver) AdmissionPolicyAuthorizationCheck(ctx context.Context, principal string, action string, resourceID string, ttl string) (*model.AdmissionPolicyAuthorization, error) {
+	tempItem := &model.AdmissionPolicyStatement{
+		Principal:  principal,
+		Action:     &action,
+		ResourceID: &resourceID,
+	}
+	fetchedItem, err := tempItem.GetByPrincipalActionResource()
+	if err != nil {
+		return nil, err
+	}
+	if ttl == "" {
+		// # default
+		ttl = "1h0m0s"
+	}
+	parsedTtl, err := time.ParseDuration(ttl)
+	if err != nil {
+		return nil, fmt.Errorf("TTL input value must be in hour minute second format, example: <A>h<B>m<C>s")
+	}
+	ttl = parsedTtl.String()
+	admissionPolicyAuthorized := &model.AdmissionPolicyAuthorization{
+		Principal:           principal,
+		AuthorizationResult: fetchedItem != nil,
+		ExpireTime:          &ttl,
+	}
+	return admissionPolicyAuthorized, nil
 }
 
 // Mutation returns generated.MutationResolver implementation.
