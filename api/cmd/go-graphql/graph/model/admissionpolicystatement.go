@@ -8,7 +8,7 @@ import (
 
 func (admissionPolicyStatement AdmissionPolicyStatement) Insert() (int64, error) {
 	database.ConnectDB()
-	statement, err := database.Db.Prepare(`INSERT INTO AdmissionPolicyStatement (PolicyUuid, Effect, Principal, Action, Resourceid) VALUES (?, ?, ?, ?, ?)`)
+	statement, err := database.Db.Prepare(`insert ignore into AdmissionPolicyStatement (PolicyUuid, Effect, Principal, Action, Resourceid) values (?, ?, ?, ?, ?)`)
 	if err != nil {
 		return 0, err
 	}
@@ -26,13 +26,7 @@ func (admissionPolicyStatement AdmissionPolicyStatement) Insert() (int64, error)
 	}
 }
 
-// func (admissionPolicy AdmissionPolicy) Update() (int64, error) {
-// 	// TODO: below logic is placeholder, need to determine better approach for upsert logic
-// 	// database.ConnectDB()
-// }
-
 func (admissionPolicyStatement AdmissionPolicyStatement) Get() (*AdmissionPolicyStatement, error) {
-	// dbStatement := fmt.Sprintf("select ap.UUID as Id, ap.Name, ap.Type as AdmissionPolicyType, apr.Principal as Principal, apr.Action as Action, apr.ResourceId as Resource from AdmissionPolicy ap join AdmissionPolicyStatement apr on ap.Id = apr.PolicyId where ap.UUID = '%s'", *admissionPolicy.ID)
 	database.ConnectDB()
 	statement, err := database.Db.Prepare(fmt.Sprintf("select Id, PolicyUuid, Effect, Principal, Action, ResourceId from AdmissionPolicyStatement where Id = '%s'", *admissionPolicyStatement.ID))
 	if err != nil {
@@ -111,4 +105,18 @@ func (admissionPolicyStatement AdmissionPolicyStatement) GetByPrincipalActionRes
 		return nil, nil
 	}
 	return &result, nil
+}
+
+func (admissionPolicyStatement AdmissionPolicyStatement) Delete() (bool, error) {
+	database.ConnectDB()
+	statement, err := database.Db.Prepare(fmt.Sprintf("delete from AdmissionPolicyStatement aps where aps.Id = '%s'", *admissionPolicyStatement.ID))
+	if err != nil {
+		return false, err
+	}
+	defer statement.Close()
+	_, err = statement.Query()
+	if err != nil {
+		return false, err
+	}
+	return true, nil
 }

@@ -70,11 +70,9 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
-		CreateAdmissionPolicy           func(childComplexity int, admissionPolicy model.AdmissionPolicyInput) int
-		DeleteAdmissionPolicy           func(childComplexity int, id string) int
-		UpdateAdmissionPolicyActions    func(childComplexity int, id string, admissionPolicyActions []*string) int
-		UpdateAdmissionPolicyPrincipals func(childComplexity int, id string, admissionPolicyPrincipals []*string) int
-		UpdateAdmissionPolicyResources  func(childComplexity int, id string, admissionPolicyResources []*string) int
+		CreateAdmissionPolicy func(childComplexity int, admissionPolicy model.AdmissionPolicyInput) int
+		DeleteAdmissionPolicy func(childComplexity int, id string) int
+		UpdateAdmissionPolicy func(childComplexity int, admissionPolicyUpdates model.AdmissionPolicyUpdateInput) int
 	}
 
 	Query struct {
@@ -88,9 +86,7 @@ type ComplexityRoot struct {
 
 type MutationResolver interface {
 	CreateAdmissionPolicy(ctx context.Context, admissionPolicy model.AdmissionPolicyInput) (*model.AdmissionPolicy, error)
-	UpdateAdmissionPolicyActions(ctx context.Context, id string, admissionPolicyActions []*string) (*model.AdmissionPolicy, error)
-	UpdateAdmissionPolicyPrincipals(ctx context.Context, id string, admissionPolicyPrincipals []*string) (*model.AdmissionPolicy, error)
-	UpdateAdmissionPolicyResources(ctx context.Context, id string, admissionPolicyResources []*string) (*model.AdmissionPolicy, error)
+	UpdateAdmissionPolicy(ctx context.Context, admissionPolicyUpdates model.AdmissionPolicyUpdateInput) (*model.AdmissionPolicy, error)
 	DeleteAdmissionPolicy(ctx context.Context, id string) (*bool, error)
 }
 type QueryResolver interface {
@@ -252,41 +248,17 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.DeleteAdmissionPolicy(childComplexity, args["id"].(string)), true
 
-	case "Mutation.updateAdmissionPolicyActions":
-		if e.complexity.Mutation.UpdateAdmissionPolicyActions == nil {
+	case "Mutation.updateAdmissionPolicy":
+		if e.complexity.Mutation.UpdateAdmissionPolicy == nil {
 			break
 		}
 
-		args, err := ec.field_Mutation_updateAdmissionPolicyActions_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_updateAdmissionPolicy_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdateAdmissionPolicyActions(childComplexity, args["id"].(string), args["admissionPolicyActions"].([]*string)), true
-
-	case "Mutation.updateAdmissionPolicyPrincipals":
-		if e.complexity.Mutation.UpdateAdmissionPolicyPrincipals == nil {
-			break
-		}
-
-		args, err := ec.field_Mutation_updateAdmissionPolicyPrincipals_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Mutation.UpdateAdmissionPolicyPrincipals(childComplexity, args["id"].(string), args["admissionPolicyPrincipals"].([]*string)), true
-
-	case "Mutation.updateAdmissionPolicyResources":
-		if e.complexity.Mutation.UpdateAdmissionPolicyResources == nil {
-			break
-		}
-
-		args, err := ec.field_Mutation_updateAdmissionPolicyResources_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Mutation.UpdateAdmissionPolicyResources(childComplexity, args["id"].(string), args["admissionPolicyResources"].([]*string)), true
+		return e.complexity.Mutation.UpdateAdmissionPolicy(childComplexity, args["admissionPolicyUpdates"].(model.AdmissionPolicyUpdateInput)), true
 
 	case "Query.admissionPolicies":
 		if e.complexity.Query.AdmissionPolicies == nil {
@@ -357,6 +329,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	ec := executionContext{rc, e}
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
 		ec.unmarshalInputAdmissionPolicyInput,
+		ec.unmarshalInputAdmissionPolicyUpdateInput,
 	)
 	first := true
 
@@ -449,6 +422,14 @@ input AdmissionPolicyInput {
   resources: [String]! # identifier for what you have access to records-wise -- allow for wildcard - parn:credential:::my-credential-name, parn:user:::some-user-name, etc
 }
 
+input AdmissionPolicyUpdateInput {
+  id: String!
+  effect: Effect!
+  principal: [String]! # list of PARNs representing various principals - parn:user:::myusername, credential.prod-eng.2nd.watch, etc
+  actions: [String]! # credential:Read, credential:Write, admissionPolicy:Read, etc
+  resources: [String]! # identifier for what you have access to records-wise -- allow for wildcard - parn:credential:::my-credential-name, parn:user:::some-user-name, etc
+}
+
 type AdmissionPolicyAuthorization { # output model for evaluating if principal has action on resource
   principal: String!
   authorizationResult: Boolean!
@@ -475,11 +456,8 @@ type Query {
 
 type Mutation {
   createAdmissionPolicy(admissionPolicy: AdmissionPolicyInput!): AdmissionPolicy
-  updateAdmissionPolicyActions(id: String!, admissionPolicyActions: [String]): AdmissionPolicy # encompasses add, update, delete
-  updateAdmissionPolicyPrincipals(id: String!, admissionPolicyPrincipals: [String]): AdmissionPolicy # encompasses add, update, delete
-  updateAdmissionPolicyResources(id: String!, admissionPolicyResources: [String]): AdmissionPolicy # encompasses add, update, delete
+  updateAdmissionPolicy(admissionPolicyUpdates: AdmissionPolicyUpdateInput!): AdmissionPolicy # encompasses add, update, delete
   deleteAdmissionPolicy(id: String!): Boolean
-
 }`, BuiltIn: false},
 }
 var parsedSchema = gqlparser.MustLoadSchema(sources...)
@@ -518,75 +496,18 @@ func (ec *executionContext) field_Mutation_deleteAdmissionPolicy_args(ctx contex
 	return args, nil
 }
 
-func (ec *executionContext) field_Mutation_updateAdmissionPolicyActions_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_updateAdmissionPolicy_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 string
-	if tmp, ok := rawArgs["id"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+	var arg0 model.AdmissionPolicyUpdateInput
+	if tmp, ok := rawArgs["admissionPolicyUpdates"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("admissionPolicyUpdates"))
+		arg0, err = ec.unmarshalNAdmissionPolicyUpdateInput2gitlabᚗcomᚋ2ndwatchᚋmicroservicesᚋmsᚑadmissionsᚑserviceᚋapiᚋcmdᚋgoᚑgraphqlᚋgraphᚋmodelᚐAdmissionPolicyUpdateInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["id"] = arg0
-	var arg1 []*string
-	if tmp, ok := rawArgs["admissionPolicyActions"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("admissionPolicyActions"))
-		arg1, err = ec.unmarshalOString2ᚕᚖstring(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["admissionPolicyActions"] = arg1
-	return args, nil
-}
-
-func (ec *executionContext) field_Mutation_updateAdmissionPolicyPrincipals_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 string
-	if tmp, ok := rawArgs["id"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-		arg0, err = ec.unmarshalNString2string(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["id"] = arg0
-	var arg1 []*string
-	if tmp, ok := rawArgs["admissionPolicyPrincipals"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("admissionPolicyPrincipals"))
-		arg1, err = ec.unmarshalOString2ᚕᚖstring(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["admissionPolicyPrincipals"] = arg1
-	return args, nil
-}
-
-func (ec *executionContext) field_Mutation_updateAdmissionPolicyResources_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 string
-	if tmp, ok := rawArgs["id"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-		arg0, err = ec.unmarshalNString2string(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["id"] = arg0
-	var arg1 []*string
-	if tmp, ok := rawArgs["admissionPolicyResources"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("admissionPolicyResources"))
-		arg1, err = ec.unmarshalOString2ᚕᚖstring(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["admissionPolicyResources"] = arg1
+	args["admissionPolicyUpdates"] = arg0
 	return args, nil
 }
 
@@ -1550,8 +1471,8 @@ func (ec *executionContext) fieldContext_Mutation_createAdmissionPolicy(ctx cont
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_updateAdmissionPolicyActions(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_updateAdmissionPolicyActions(ctx, field)
+func (ec *executionContext) _Mutation_updateAdmissionPolicy(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_updateAdmissionPolicy(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -1564,7 +1485,7 @@ func (ec *executionContext) _Mutation_updateAdmissionPolicyActions(ctx context.C
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdateAdmissionPolicyActions(rctx, fc.Args["id"].(string), fc.Args["admissionPolicyActions"].([]*string))
+		return ec.resolvers.Mutation().UpdateAdmissionPolicy(rctx, fc.Args["admissionPolicyUpdates"].(model.AdmissionPolicyUpdateInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1578,7 +1499,7 @@ func (ec *executionContext) _Mutation_updateAdmissionPolicyActions(ctx context.C
 	return ec.marshalOAdmissionPolicy2ᚖgitlabᚗcomᚋ2ndwatchᚋmicroservicesᚋmsᚑadmissionsᚑserviceᚋapiᚋcmdᚋgoᚑgraphqlᚋgraphᚋmodelᚐAdmissionPolicy(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Mutation_updateAdmissionPolicyActions(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Mutation_updateAdmissionPolicy(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Mutation",
 		Field:      field,
@@ -1611,143 +1532,7 @@ func (ec *executionContext) fieldContext_Mutation_updateAdmissionPolicyActions(c
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_updateAdmissionPolicyActions_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Mutation_updateAdmissionPolicyPrincipals(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_updateAdmissionPolicyPrincipals(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdateAdmissionPolicyPrincipals(rctx, fc.Args["id"].(string), fc.Args["admissionPolicyPrincipals"].([]*string))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*model.AdmissionPolicy)
-	fc.Result = res
-	return ec.marshalOAdmissionPolicy2ᚖgitlabᚗcomᚋ2ndwatchᚋmicroservicesᚋmsᚑadmissionsᚑserviceᚋapiᚋcmdᚋgoᚑgraphqlᚋgraphᚋmodelᚐAdmissionPolicy(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Mutation_updateAdmissionPolicyPrincipals(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Mutation",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_AdmissionPolicy_id(ctx, field)
-			case "name":
-				return ec.fieldContext_AdmissionPolicy_name(ctx, field)
-			case "effect":
-				return ec.fieldContext_AdmissionPolicy_effect(ctx, field)
-			case "type":
-				return ec.fieldContext_AdmissionPolicy_type(ctx, field)
-			case "principal":
-				return ec.fieldContext_AdmissionPolicy_principal(ctx, field)
-			case "actions":
-				return ec.fieldContext_AdmissionPolicy_actions(ctx, field)
-			case "resources":
-				return ec.fieldContext_AdmissionPolicy_resources(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type AdmissionPolicy", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_updateAdmissionPolicyPrincipals_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Mutation_updateAdmissionPolicyResources(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_updateAdmissionPolicyResources(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdateAdmissionPolicyResources(rctx, fc.Args["id"].(string), fc.Args["admissionPolicyResources"].([]*string))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*model.AdmissionPolicy)
-	fc.Result = res
-	return ec.marshalOAdmissionPolicy2ᚖgitlabᚗcomᚋ2ndwatchᚋmicroservicesᚋmsᚑadmissionsᚑserviceᚋapiᚋcmdᚋgoᚑgraphqlᚋgraphᚋmodelᚐAdmissionPolicy(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Mutation_updateAdmissionPolicyResources(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Mutation",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_AdmissionPolicy_id(ctx, field)
-			case "name":
-				return ec.fieldContext_AdmissionPolicy_name(ctx, field)
-			case "effect":
-				return ec.fieldContext_AdmissionPolicy_effect(ctx, field)
-			case "type":
-				return ec.fieldContext_AdmissionPolicy_type(ctx, field)
-			case "principal":
-				return ec.fieldContext_AdmissionPolicy_principal(ctx, field)
-			case "actions":
-				return ec.fieldContext_AdmissionPolicy_actions(ctx, field)
-			case "resources":
-				return ec.fieldContext_AdmissionPolicy_resources(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type AdmissionPolicy", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_updateAdmissionPolicyResources_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Mutation_updateAdmissionPolicy_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
@@ -4118,6 +3903,66 @@ func (ec *executionContext) unmarshalInputAdmissionPolicyInput(ctx context.Conte
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputAdmissionPolicyUpdateInput(ctx context.Context, obj interface{}) (model.AdmissionPolicyUpdateInput, error) {
+	var it model.AdmissionPolicyUpdateInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"id", "effect", "principal", "actions", "resources"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "id":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+			it.ID, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "effect":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("effect"))
+			it.Effect, err = ec.unmarshalNEffect2gitlabᚗcomᚋ2ndwatchᚋmicroservicesᚋmsᚑadmissionsᚑserviceᚋapiᚋcmdᚋgoᚑgraphqlᚋgraphᚋmodelᚐEffect(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "principal":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("principal"))
+			it.Principal, err = ec.unmarshalNString2ᚕᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "actions":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("actions"))
+			it.Actions, err = ec.unmarshalNString2ᚕᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "resources":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("resources"))
+			it.Resources, err = ec.unmarshalNString2ᚕᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 // endregion **************************** input.gotpl *****************************
 
 // region    ************************** interface.gotpl ***************************
@@ -4305,22 +4150,10 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 				return ec._Mutation_createAdmissionPolicy(ctx, field)
 			})
 
-		case "updateAdmissionPolicyActions":
+		case "updateAdmissionPolicy":
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_updateAdmissionPolicyActions(ctx, field)
-			})
-
-		case "updateAdmissionPolicyPrincipals":
-
-			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_updateAdmissionPolicyPrincipals(ctx, field)
-			})
-
-		case "updateAdmissionPolicyResources":
-
-			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_updateAdmissionPolicyResources(ctx, field)
+				return ec._Mutation_updateAdmissionPolicy(ctx, field)
 			})
 
 		case "deleteAdmissionPolicy":
@@ -4887,6 +4720,11 @@ func (ec *executionContext) marshalNAdmissionPolicyStatement2ᚕᚖgitlabᚗcom�
 	return ret
 }
 
+func (ec *executionContext) unmarshalNAdmissionPolicyUpdateInput2gitlabᚗcomᚋ2ndwatchᚋmicroservicesᚋmsᚑadmissionsᚑserviceᚋapiᚋcmdᚋgoᚑgraphqlᚋgraphᚋmodelᚐAdmissionPolicyUpdateInput(ctx context.Context, v interface{}) (model.AdmissionPolicyUpdateInput, error) {
+	res, err := ec.unmarshalInputAdmissionPolicyUpdateInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalNBoolean2bool(ctx context.Context, v interface{}) (bool, error) {
 	res, err := graphql.UnmarshalBoolean(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -5299,38 +5137,6 @@ func (ec *executionContext) marshalOID2ᚖstring(ctx context.Context, sel ast.Se
 	}
 	res := graphql.MarshalID(*v)
 	return res
-}
-
-func (ec *executionContext) unmarshalOString2ᚕᚖstring(ctx context.Context, v interface{}) ([]*string, error) {
-	if v == nil {
-		return nil, nil
-	}
-	var vSlice []interface{}
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
-	var err error
-	res := make([]*string, len(vSlice))
-	for i := range vSlice {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalOString2ᚖstring(ctx, vSlice[i])
-		if err != nil {
-			return nil, err
-		}
-	}
-	return res, nil
-}
-
-func (ec *executionContext) marshalOString2ᚕᚖstring(ctx context.Context, sel ast.SelectionSet, v []*string) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	ret := make(graphql.Array, len(v))
-	for i := range v {
-		ret[i] = ec.marshalOString2ᚖstring(ctx, sel, v[i])
-	}
-
-	return ret
 }
 
 func (ec *executionContext) unmarshalOString2ᚖstring(ctx context.Context, v interface{}) (*string, error) {

@@ -43,6 +43,14 @@ type AdmissionPolicyStatement struct {
 	ResourceID *string `json:"resourceId"`
 }
 
+type AdmissionPolicyUpdateInput struct {
+	ID        string    `json:"id"`
+	Effect    Effect    `json:"effect"`
+	Principal []*string `json:"principal"`
+	Actions   []*string `json:"actions"`
+	Resources []*string `json:"resources"`
+}
+
 type AdmissionPolicyType string
 
 const (

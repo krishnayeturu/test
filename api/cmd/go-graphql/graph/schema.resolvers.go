@@ -97,152 +97,21 @@ func (r *mutationResolver) CreateAdmissionPolicy(ctx context.Context, admissionP
 	return createdAdmissionPolicy, nil
 }
 
-// UpdateAdmissionPolicyActions is the resolver for the updateAdmissionPolicyActions field.
-func (r *mutationResolver) UpdateAdmissionPolicyActions(ctx context.Context, id string, admissionPolicyActions []*string) (*model.AdmissionPolicy, error) {
-	updateAdmissionPolicyActionsModel := &model.AdmissionPolicyActions{
-		ID:      id,
-		Actions: admissionPolicyActions,
+// UpdateAdmissionPolicy is the resolver for the updateAdmissionPolicy field.
+func (r *mutationResolver) UpdateAdmissionPolicy(ctx context.Context, admissionPolicyUpdates model.AdmissionPolicyUpdateInput) (*model.AdmissionPolicy, error) {
+	updatedAdmissionPolicy := &model.AdmissionPolicy{
+		ID:        &admissionPolicyUpdates.ID,
+		Effect:    &admissionPolicyUpdates.Effect,
+		Principal: append([]*string{}, admissionPolicyUpdates.Principal...),
+		Actions:   append([]*string{}, admissionPolicyUpdates.Actions...),
+		Resources: append([]*string{}, admissionPolicyUpdates.Resources...),
 	}
-	fmt.Println(updateAdmissionPolicyActionsModel)
-	// encode input struct
-	// encodedBlob, err := EncodeToString(updateAdmissionPolicyActionsModel)
-	// if err != nil {
-	// 	return nil, fmt.Errorf("encountered an error while encoding input object: %v", err)
-	// }
-
-	// messageData := CommanderMessage{
-	// 	Action: "UpdateAdmissionPolicyActions",
-	// 	Data: CommanderMessageData{
-	// 		MessageUUID: strings.Replace(uuid.New().String(), "-", "", -1),
-	// 		DataBlob:    encodedBlob,
-	// 		CommandName: "UpdateAdmissionPolicyActions", // may not need this
-	// 	},
-	// }
-	// updatedAdmissionPolicy := &model.AdmissionPolicy{
-	// 	ID:        id,
-	// 	Name:      "",
-	// 	Effect:    nil,
-	// 	Type:      nil,
-	// 	Principal: []*string{},
-	// 	Actions:   append([]*string{}, admissionPolicyActions...),
-	// 	Resources: []*string{},
-	// }
-	// region API call
-	// response, err := r.apiClient.MakeApiRequest(*updatedAdmissionPolicy, "UpdateAdmissionPolicyActions", "PUT")
-	// if err != nil {
-	// 	return nil, fmt.Errorf("encountered an error while trying to PUT object: %v", err)
-	// }
-	// fmt.Printf("Successfully submitted PUT request for object %s", *response)
-	// region API call
-	// return updateAdmissionPolicyActionsModel, nil
-	matchingPolicy := model.AdmissionPolicy{}
-	for _, v := range r.admissionPolicies {
-		if *v.ID == id {
-			v.Actions = updateAdmissionPolicyActionsModel.Actions
-			matchingPolicy = *v
-		}
+	result, err := updatedAdmissionPolicy.UpdatePolicyStatements()
+	if err != nil {
+		return nil, err
 	}
-	return &matchingPolicy, nil
-}
 
-// UpdateAdmissionPolicyPrincipals is the resolver for the updateAdmissionPolicyPrincipals field.
-func (r *mutationResolver) UpdateAdmissionPolicyPrincipals(ctx context.Context, id string, admissionPolicyPrincipals []*string) (*model.AdmissionPolicy, error) {
-	updateAdmissionPolicyPrincipalsModel := &model.AdmissionPolicyPrincipals{
-		ID:         id,
-		Principals: admissionPolicyPrincipals,
-	}
-	fmt.Println(updateAdmissionPolicyPrincipalsModel)
-
-	// encode input struct
-	// encodedBlob, err := EncodeToString(updateAdmissionPolicyPrincipalsModel)
-	// if err != nil {
-	// 	return nil, fmt.Errorf("encountered an error while encoding input object: %v", err)
-	// }
-
-	// messageData := CommanderMessage{
-	// 	Action: "UpdateAdmissionPolicyPrincipals",
-	// 	Data: CommanderMessageData{
-	// 		MessageUUID: strings.Replace(uuid.New().String(), "-", "", -1),
-	// 		DataBlob:    encodedBlob,
-	// 		CommandName: "UpdateAdmissionPolicyPrincipals", // may not need this
-	// 	},
-	// }
-	// updatedAdmissionPolicy := &model.AdmissionPolicy{
-	// 	ID:        id,
-	// 	Name:      "",
-	// 	Effect:    nil,
-	// 	Type:      nil,
-	// 	Principal: append([]*string{}, admissionPolicyPrincipals...),
-	// 	Actions:   []*string{},
-	// 	Resources: []*string{},
-	// }
-	// region API call
-	// response, err := r.apiClient.MakeApiRequest(*updatedAdmissionPolicy, "UpdateAdmissionPolicyPrincipals", "PUT")
-	// if err != nil {
-	// 	return nil, fmt.Errorf("encountered an error while trying to PUT object: %v", err)
-	// }
-
-	// fmt.Printf("Successfully submitted PUT request for object %s", *response)
-	// endregion API call
-	// return updateAdmissionPolicyPrincipalsModel, nil
-	matchingPolicy := model.AdmissionPolicy{}
-	for _, v := range r.admissionPolicies {
-		if *v.ID == id {
-			v.Principal = updateAdmissionPolicyPrincipalsModel.Principals
-			matchingPolicy = *v
-		}
-	}
-	return &matchingPolicy, nil
-}
-
-// UpdateAdmissionPolicyResources is the resolver for the updateAdmissionPolicyResources field.
-func (r *mutationResolver) UpdateAdmissionPolicyResources(ctx context.Context, id string, admissionPolicyResources []*string) (*model.AdmissionPolicy, error) {
-	updateAdmissionPolicyResourcesModel := &model.AdmissionPolicyResources{
-		ID:        id,
-		Resources: admissionPolicyResources,
-	}
-	fmt.Println(updateAdmissionPolicyResourcesModel)
-
-	// encode input struct
-	// encodedBlob, err := EncodeToString(updateAdmissionPolicyResourcesModel)
-	// if err != nil {
-	// 	return nil, fmt.Errorf("encountered an error while encoding input object: %v", err)
-	// }
-
-	// messageData := CommanderMessage{
-	// 	Action: "UpdateAdmissionPolicyResources",
-	// 	Data: CommanderMessageData{
-	// 		MessageUUID: strings.Replace(uuid.New().String(), "-", "", -1),
-	// 		DataBlob:    encodedBlob,
-	// 		CommandName: "UpdateAdmissionPolicyResources", // may not need this
-	// 	},
-	// }
-	// updatedAdmissionPolicy := &model.AdmissionPolicy{
-	// 	ID:        id,
-	// 	Name:      "",
-	// 	Effect:    nil,
-	// 	Type:      nil,
-	// 	Principal: []*string{},
-	// 	Actions:   []*string{},
-	// 	Resources: append([]*string{}, admissionPolicyResources...),
-	// }
-	// region API call
-	// response, err := r.apiClient.MakeApiRequest(*updatedAdmissionPolicy, "UpdateAdmissionPolicyResources", "PUT")
-	// if err != nil {
-	// 	return nil, fmt.Errorf("encountered an error while trying to PUT object: %v", err)
-	// }
-
-	// fmt.Printf("Successfully submitted PUT request for object %s", *response)
-	// endregion API call
-	// return updateAdmissionPolicyResourcesModel, nil
-	matchingPolicy := model.AdmissionPolicy{}
-	for _, v := range r.admissionPolicies {
-		if *v.ID == id {
-			v.Resources = updateAdmissionPolicyResourcesModel.Resources
-			matchingPolicy = *v
-		}
-	}
-	return &matchingPolicy, nil
+	return result, nil
 }
 
 // DeleteAdmissionPolicy is the resolver for the deleteAdmissionPolicy field.
@@ -250,6 +119,13 @@ func (r *mutationResolver) DeleteAdmissionPolicy(ctx context.Context, id string)
 	// The below logic will be replaced with Commander API call for deletes here, this is temporary for example
 	// TODO: Send marshalled JSON object to Commander API for database deletes below here
 	var deleted = false
+	deletedAdmissionPolicy := &model.AdmissionPolicy{
+		ID: &id,
+	}
+	_, err := deletedAdmissionPolicy.Delete()
+	if err != nil { // NOOP - nothing to delete
+		return &deleted, nil
+	}
 	// messageData := CommanderMessage{
 	// 	Action: "DeleteAdmissionPolicy",
 	// 	Data: CommanderMessageData{
@@ -320,11 +196,6 @@ func (r *queryResolver) AdmissionPolicy(ctx context.Context, id string) (*model.
 		return nil, fmt.Errorf("invalid identifier: %s", id)
 	}
 	var tempItem model.AdmissionPolicy
-	// for index := range r.admissionPolicies {
-	// 	if *r.admissionPolicies[index].ID == id {
-	// 		returnItem = *r.admissionPolicies[index]
-	// 	}
-	// }
 	tempItem.ID = &id
 	returnItem, err := tempItem.Get()
 	if err != nil {
