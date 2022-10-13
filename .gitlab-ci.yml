@@ -11,9 +11,9 @@ include:
 
 variables:
   IMAGE_NAME: $CI_PROJECT_NAME
-  BUILD_DIR: .
-  BUILD_IMAGE: registry.gitlab.com/2ndwatch/docker-images/java-build/java-build:openjdk-17-slim-1
-  CHART_PATH: ./deploy/helm
+  API_BUILD_DIR: ./api/
+  API_BUILD_IMAGE: registry.gitlab.com/2ndwatch/docker-images/go-build/go-build:golang-1.18-0
+  CHART_PATH: .api/deploy/helm
   CHART_REPO: k8s-automation-service-charts
 
 stages:
@@ -22,18 +22,18 @@ stages:
 
 test:
   stage: build
-  image: $BUILD_IMAGE
+  image: $API_BUILD_IMAGE
   script:
-    - ./scripts/ms-scaffolder/test.sh
+    - ./api/scripts/ms-scaffolder/test.sh
 
 build:
   stage: build
-  image: $BUILD_IMAGE
+  image: $API_BUILD_IMAGE
   script:
-    - ./scripts/ms-scaffolder/build.sh
+    - ./api/scripts/ms-scaffolder/build.sh
   artifacts:
     paths:
-      - build/
+      - api/build/
       - .env
 
 push-dev:
