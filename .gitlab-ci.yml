@@ -13,7 +13,7 @@ variables:
   IMAGE_NAME: $CI_PROJECT_NAME
   API_BUILD_DIR: ./api
   API_BUILD_IMAGE: registry.gitlab.com/2ndwatch/docker-images/go-build/go-build:golang-1.18-0
-  CHART_PATH: .api/deploy/helm
+  CHART_PATH: ./api/deploy/helm
   CHART_REPO: k8s-automation-service-charts
 
 stages:
