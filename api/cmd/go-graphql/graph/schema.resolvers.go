@@ -17,7 +17,6 @@ import (
 // CreateAdmissionPolicy is the resolver for the createAdmissionPolicy field.
 func (r *mutationResolver) CreateAdmissionPolicy(ctx context.Context, admissionPolicy model.AdmissionPolicyInput) (*model.AdmissionPolicy, error) {
 	policyUuid := strings.Replace(uuid.New().String(), "-", "", -1)
-
 	createdAdmissionPolicy := &model.AdmissionPolicy{
 		ID:        &policyUuid,
 		Name:      admissionPolicy.Name,
@@ -27,19 +26,17 @@ func (r *mutationResolver) CreateAdmissionPolicy(ctx context.Context, admissionP
 		Actions:   append([]*string{}, admissionPolicy.Actions...),
 		Resources: append([]*string{}, admissionPolicy.Resources...),
 	}
-	// // TODO: Send marshalled JSON object to Commander API for database inserts here
 
 	// region Database Operations
-	insert_id, err := createdAdmissionPolicy.Insert()
-	if err != nil {
-		return nil, err
-	}
-
-	fmt.Println(insert_id)
-	// enddregion Database Operations
+	// insert_id, err := createdAdmissionPolicy.Insert()
+	// if err != nil {
+	// 	return nil, err
+	// }
+	// fmt.Println(insert_id)
+	// endregion Database Operations
 
 	// region API call
-	response, err := r.apiClient.MakeApiRequest(*createdAdmissionPolicy, "CreateAdmissionPolicy", "POST")
+	response, err := r.apiClient.MakeApiRequest(*createdAdmissionPolicy, "CreateAdmissionPolicy")
 	if err != nil {
 		return nil, fmt.Errorf("encountered an error while trying to POST object: %v", err)
 	}
@@ -57,17 +54,19 @@ func (r *mutationResolver) UpdateAdmissionPolicy(ctx context.Context, admissionP
 		Actions:   append([]*string{}, admissionPolicyUpdates.Actions...),
 		Resources: append([]*string{}, admissionPolicyUpdates.Resources...),
 	}
+	// region Database Operations
 	result, err := updatedAdmissionPolicy.UpdatePolicyStatements()
 	if err != nil {
 		return nil, err
 	}
+	// endregion Database Operations
 
 	// region API call
-	// response, err := r.apiClient.MakeApiRequest(*updatedAdmissionPolicy, "UpdateAdmissionPolicy", "PUT")
-	// if err != nil {
-	// 	return nil, fmt.Errorf("encountered an error while trying to PUT object: %v", err)
-	// }
-	// fmt.Printf("Successfully submitted PUT request for object %s", *response)
+	response, err := r.apiClient.MakeApiRequest(*updatedAdmissionPolicy, "UpdateAdmissionPolicy")
+	if err != nil {
+		return nil, fmt.Errorf("encountered an error while trying to PUT object: %v", err)
+	}
+	fmt.Printf("Successfully submitted PUT request for object %s", *response)
 	// endregion API call
 
 	return result, nil
@@ -75,23 +74,23 @@ func (r *mutationResolver) UpdateAdmissionPolicy(ctx context.Context, admissionP
 
 // DeleteAdmissionPolicy is the resolver for the deleteAdmissionPolicy field.
 func (r *mutationResolver) DeleteAdmissionPolicy(ctx context.Context, id string) (*bool, error) {
-	// The below logic will be replaced with Commander API call for deletes here, this is temporary for example
-	// TODO: Send marshalled JSON object to Commander API for database deletes below here
 	var deleted = false
 	deletedAdmissionPolicy := &model.AdmissionPolicy{
 		ID: &id,
 	}
-	_, err := deletedAdmissionPolicy.Delete()
-	if err != nil { // NOOP - nothing to delete
-		return &deleted, nil
-	}
+	// region Database Operations
+	// _, err := deletedAdmissionPolicy.Delete()
+	// if err != nil { // NOOP - nothing to delete
+	// 	return &deleted, nil
+	// }
+	// endregion Database Operations
 
 	// region API call
-	// response, err := r.apiClient.MakeApiRequest(*deletedAdmissionPolicy, "DeleteAdmissionPolicy", "DELETE")
-	// if err != nil {
-	// 	return nil, fmt.Errorf("encountered an error while trying to DELETE object: %v", err)
-	// }
-	// fmt.Printf("Successfully submitted DELETE request for object %s", *response)
+	response, err := r.apiClient.MakeApiRequest(*deletedAdmissionPolicy, "DeleteAdmissionPolicy")
+	if err != nil {
+		return nil, fmt.Errorf("encountered an error while trying to DELETE object: %v", err)
+	}
+	fmt.Printf("Successfully submitted DELETE request for object %s", *response)
 	// endregion API call
 	deleted = true
 
@@ -133,7 +132,6 @@ func (r *queryResolver) AdmissionPolicies(ctx context.Context, principal string,
 
 // AdmissionPolicy is the resolver for the admissionPolicy field.
 func (r *queryResolver) AdmissionPolicy(ctx context.Context, id string) (*model.AdmissionPolicy, error) {
-	// panic(fmt.Errorf("not implemented: AdmissionPolicy - admissionPolicy"))
 	_, err := uuid.Parse((id))
 	if err != nil {
 		return nil, fmt.Errorf("invalid identifier: %s", id)

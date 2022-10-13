@@ -5,7 +5,7 @@
 /build
 /src/generated/*
 .terraform
-.env
+# .env
 
 # streams rocksdb
 /*_state*

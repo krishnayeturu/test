@@ -26,7 +26,7 @@ type CommanderMessageData struct {
 }
 
 var (
-	targetApiEndpoint = getenv("TARGET_API_ENDPOINT", "<TBD>/commands")
+	targetApiEndpoint = getenv("TARGET_API_ENDPOINT", "http://127.0.0.1:8080/commands")
 )
 
 func getenv(key, defaultValue string) string {
@@ -90,7 +90,7 @@ func convertAdmissionPolicyToProtoStruct(message model.AdmissionPolicy) (*struct
 //endregion private funcs
 
 //region public funcs
-func (apiClient *CommanderClient) MakeApiRequest(message model.AdmissionPolicy, action string, requestType string) (*string, error) {
+func (apiClient *CommanderClient) MakeApiRequest(message model.AdmissionPolicy, action string) (*string, error) {
 
 	// requestBody, err := json.Marshal(message)
 	requestBody, err := convertAdmissionPolicyToProtoStruct(message)
@@ -103,9 +103,6 @@ func (apiClient *CommanderClient) MakeApiRequest(message model.AdmissionPolicy, 
 		Sync:   true, // true for synchronous request
 	}
 
-	if requestType == "" {
-		return nil, fmt.Errorf("must specify request type (POST, PUT, DELETE)")
-	}
 	// TODO: test if below will properly represent commandParams when sending to API -- seems unlikely
 	marshalledCommandParams, err := json.Marshal(commandParams)
 	if err != nil {
@@ -113,14 +110,12 @@ func (apiClient *CommanderClient) MakeApiRequest(message model.AdmissionPolicy, 
 	}
 	msg := &structpb.Struct{}
 	protojson.Unmarshal(marshalledCommandParams, msg)
-	// request, err := http.NewRequest(requestType, targetApiEndpoint, bytes.NewBuffer(requestBody))
-	request, err := http.NewRequest(requestType, targetApiEndpoint, bytes.NewBuffer(marshalledCommandParams))
-
+	// static value of POST for below request method param as all Commander API submissions are treated as message create ops
+	request, err := http.NewRequest("POST", targetApiEndpoint, bytes.NewBuffer(marshalledCommandParams))
 	if err != nil {
 		return nil, err
 	}
 
-	// request.Header.Set("x-api-key", apiClient.fetchXApiKeyHeaders())
 	request.Header.Set("Content-Type", "application/json; charset=UTF-8")
 	client := &http.Client{}
 	response, err := client.Do(request)
