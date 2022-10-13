@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package com._2ndwatch.type;
+
+option go_package = "gitlab.com/2ndwatch/microservices/apis/ms-api-commander/pkg/pb/type/uuid;uuid";
+option java_multiple_files = true;
+option java_package = "com._2ndwatch.type";
+option java_outer_classname = "UUIDProto";
+
+message UUID {
+  string value = 1;
+}
