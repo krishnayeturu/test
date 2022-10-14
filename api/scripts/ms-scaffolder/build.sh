@@ -19,4 +19,4 @@ source $PROJECT_DIR/.env
 $SCRIPT_DIR/protogen.sh
 
 mkdir -p $PROJECT_DIR/build
-CGO_ENABLED=0 go build -o $PROJECT_DIR/build/main $PROJECT_DIR/cmd/main.go
+CGO_ENABLED=0 go build -o $PROJECT_DIR/build/main $PROJECT_DIR/cmd
