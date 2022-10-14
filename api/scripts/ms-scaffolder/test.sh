@@ -18,4 +18,4 @@ source $PROJECT_DIR/.env
 # Call build script.
 $SCRIPT_DIR/build.sh
 
-go test --test.short -race $PROJECT_DIR/cmd
+# go test --test.short -race $PROJECT_DIR/cmd
