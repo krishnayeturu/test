@@ -37,9 +37,9 @@ api-build:
       - .env
   variables:
     BUILD_DIR: $API_BUILD_DIR
-  rules:
-    - changes:
-        - ./api/*
+  # rules:
+  #   - changes:
+  #       - ./api/*
 
 api-push-dev:
   stage: push
