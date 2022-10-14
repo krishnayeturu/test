@@ -18,5 +18,6 @@ source $PROJECT_DIR/.env
 # Call protogen script
 $SCRIPT_DIR/protogen.sh
 
-mkdir -p $PROJECT_DIR/build
-CGO_ENABLED=0 go build -o $PROJECT_DIR/build/main $PROJECT_DIR/cmd
+cd $PROJECT_DIR
+mkdir build
+CGO_ENABLED=0 go build -o build/main cmd/main.go
