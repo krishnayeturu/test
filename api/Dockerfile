@@ -5,3 +5,5 @@ COPY build/main /service/main
 COPY .env /service/.env
 
 CMD ["/service/main"]
+
+EXPOSE 8083
