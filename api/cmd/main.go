@@ -12,6 +12,7 @@ import (
 	"github.com/joho/godotenv"
 	"gitlab.com/2ndwatch/microservices/ms-admissions-service/api/cmd/graph"
 	"gitlab.com/2ndwatch/microservices/ms-admissions-service/api/cmd/graph/generated"
+	database "gitlab.com/2ndwatch/microservices/ms-admissions-service/api/pkg/services"
 )
 
 const defaultPort = "8080"
@@ -26,8 +27,8 @@ func envLoad() {
 func main() {
 	envLoad()
 
-	graph.ConnectDB()
-	defer graph.CloseDB()
+	database.ConnectDB()
+	defer database.CloseDB()
 
 	port := os.Getenv("SERVER_PORT")
 	if port == "" {
