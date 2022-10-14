@@ -3,7 +3,7 @@ package model
 import (
 	"fmt"
 
-	database "gitlab.com/2ndwatch/microservices/ms-admissions-service/api/pkg/services"
+	database "gitlab.com/2ndwatch/microservices/ms-admissions-service/api/cmd/services"
 )
 
 func (admissionPolicy AdmissionPolicy) Insert() (int64, error) {

@@ -12,7 +12,7 @@ import (
 	"github.com/joho/godotenv"
 	"gitlab.com/2ndwatch/microservices/ms-admissions-service/api/cmd/graph"
 	"gitlab.com/2ndwatch/microservices/ms-admissions-service/api/cmd/graph/generated"
-	database "gitlab.com/2ndwatch/microservices/ms-admissions-service/api/pkg/services"
+	database "gitlab.com/2ndwatch/microservices/ms-admissions-service/api/cmd/services"
 )
 
 const defaultPort = "8080"
