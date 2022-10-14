@@ -13,20 +13,20 @@ variables:
   IMAGE_NAME: $CI_PROJECT_NAME
   API_BUILD_DIR: ./api
   API_BUILD_IMAGE: registry.gitlab.com/2ndwatch/docker-images/go-build/go-build:golang-1.18-0
-  CHART_PATH: ./api/deploy/helm
-  CHART_REPO: k8s-automation-service-charts
+  API_CHART_PATH: ./api/deploy/helm
+  API_CHART_REPO: k8s-automation-service-charts
 
 stages:
   - build
   - push
 
-test:
+api-test:
   stage: build
   image: $API_BUILD_IMAGE
   script:
     - ./api/scripts/ms-scaffolder/test.sh
 
-build:
+api-build:
   stage: build
   image: $API_BUILD_IMAGE
   script:
@@ -35,40 +35,61 @@ build:
     paths:
       - api/build/
       - .env
+  variables:
+    BUILD_DIR: $API_BUILD_DIR
+  rules:
+    - changes:
+        - ./api/*
 
-push-dev:
+api-push-dev:
   stage: push
   extends: .gitlab-cr-push-dev
 
-push-prod:
+api-push-prod:
   stage: push
   extends: .gitlab-cr-push-prod
 
-helm-lint:
+api-helm-lint:
   variables:
     HELM_LINT_ARGS: "--with-subcharts"
+    CHART_PATH: $API_CHART_PATH
+    CHART_REPO: $API_CHART_REPO
   stage: build
   extends: .helm-lint
 
-helm-version:
+api-helm-version:
   stage: build
   extends: .helm-version
+  variables:
+    CHART_PATH: $API_CHART_PATH
+    CHART_REPO: $API_CHART_REPO
 
-helm-e2e:
+api-helm-e2e:
   stage: build
   extends: .helm-e2e
+  variables:
+    CHART_PATH: $API_CHART_PATH
+    CHART_REPO: $API_CHART_REPO
 
-helm-e2e-all:
+api-helm-e2e-all:
   stage: build
   variables:
     MODIFIED_ONLY: "false"
+    CHART_PATH: $API_CHART_PATH
+    CHART_REPO: $API_CHART_REPO
   when: manual
   extends: .helm-e2e
 
-helm-validate-dev:
+api-helm-validate-dev:
   stage: build
   extends: .helm-validate-chart-dev
+  variables:
+    CHART_PATH: $API_CHART_PATH
+    CHART_REPO: $API_CHART_REPO
 
-helm-validate-prod:
+api-helm-validate-prod:
   stage: build
   extends: .helm-validate-chart-prod
+  variables:
+    CHART_PATH: $API_CHART_PATH
+    CHART_REPO: $API_CHART_REPO
