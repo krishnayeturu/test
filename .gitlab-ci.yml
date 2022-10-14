@@ -33,7 +33,7 @@ api-build:
     - ./api/scripts/ms-scaffolder/build.sh
   artifacts:
     paths:
-      - api/build/
+      - api/build
       - .env
   variables:
     BUILD_DIR: $API_BUILD_DIR

@@ -37,11 +37,6 @@ func getenv(key, defaultValue string) string {
 }
 
 //region private funcs
-func (apiClient *CommanderClient) fetchXApiKeyHeaders() string {
-	// TODO: once auth endpoint is available from API, revisit this and implement auth header get
-	return "foo"
-}
-
 func convertAdmissionPolicyToProtoStruct(message model.AdmissionPolicy) (*structpb.Struct, error) {
 	principals := []string{}
 	for _, val := range message.Principal {
@@ -108,7 +103,10 @@ func (apiClient *CommanderClient) MakeApiRequest(message model.AdmissionPolicy, 
 		return nil, err
 	}
 	msg := &structpb.Struct{}
-	protojson.Unmarshal(marshalledCommandParams, msg)
+	err = protojson.Unmarshal(marshalledCommandParams, msg)
+	if err != nil {
+		return nil, err
+	}
 	// static value of POST for below request method param as all Commander API submissions are treated as message create ops
 	request, err := http.NewRequest("POST", targetApiEndpoint, bytes.NewBuffer(marshalledCommandParams))
 	if err != nil {
