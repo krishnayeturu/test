@@ -3,7 +3,7 @@
 /build
 /pkg/pb
 .terraform
-# .env
+.env
 
 # ms-scaffolder ignores. DO NOT EDIT OR REMOVE.
 /.ms-scaffolder

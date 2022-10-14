@@ -20,4 +20,4 @@ $SCRIPT_DIR/protogen.sh
 
 mkdir -p $PROJECT_DIR/build
 cd $PROJECT_DIR
-CGO_ENABLED=0 go build -o build/main cmd/go-graphql
+CGO_ENABLED=0 go build -o build/main cmd

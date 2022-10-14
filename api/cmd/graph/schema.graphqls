@@ -1,0 +1,69 @@
+# GraphQL schema example
+#
+# https://gqlgen.com/getting-started/
+enum Effect {
+  ALLOW
+  DENY
+}
+
+enum AdmissionPolicyType {
+  CREDENTIAL
+}
+
+type AdmissionPolicy {
+  id: ID
+  name: String!
+  effect: Effect
+  type: AdmissionPolicyType
+  principal: [String]! # list of PARNs representing various principals - parn:user:::myusername, credential.prod-eng.2nd.watch, etc
+  actions: [String]! # credential:Read, credential:Write, admissionPolicy:Read, etc
+  resources: [String]! # identifier for what you have access to records-wise -- allow for wildcard - parn:credential:::my-credential-name, parn:user:::some-user-name, etc
+}
+
+input AdmissionPolicyInput {
+  id: String
+  name: String!
+  effect: Effect
+  type: AdmissionPolicyType
+  principal: [String]! # list of PARNs representing various principals - parn:user:::myusername, credential.prod-eng.2nd.watch, etc
+  actions: [String]! # credential:Read, credential:Write, admissionPolicy:Read, etc
+  resources: [String]! # identifier for what you have access to records-wise -- allow for wildcard - parn:credential:::my-credential-name, parn:user:::some-user-name, etc
+}
+
+input AdmissionPolicyUpdateInput {
+  id: String!
+  effect: Effect!
+  principal: [String]! # list of PARNs representing various principals - parn:user:::myusername, credential.prod-eng.2nd.watch, etc
+  actions: [String]! # credential:Read, credential:Write, admissionPolicy:Read, etc
+  resources: [String]! # identifier for what you have access to records-wise -- allow for wildcard - parn:credential:::my-credential-name, parn:user:::some-user-name, etc
+}
+
+type AdmissionPolicyAuthorization { # output model for evaluating if principal has action on resource
+  principal: String!
+  authorizationResult: Boolean!
+  expireTime: String
+}
+
+type AdmissionPolicyStatement { # model for reading records for an admission principal
+  id: ID
+  policyId: String!
+  effect: Effect!
+  principal: String! # list of PARNs representing various principals - parn:user:::myusername, credential.prod-eng.2nd.watch, etc
+  action: String # credential:Read, credential:Write, admissionPolicy:Read, etc
+  resourceId: String # identifier for what you have access to records-wise -- allow for wildcard - parn:credential:::my-credential-name, parn:user:::some-user-name, etc
+}
+
+
+type Query {
+  admissionPolicies(principal: String!, policyType: AdmissionPolicyType, policyName: String): [AdmissionPolicy]!
+  admissionPolicy(id: String!): AdmissionPolicy
+  admissionPolicyStatement(principal: String, action: String, resourceId: String): AdmissionPolicyStatement
+  admissionPolicyStatements(principal: String, action: String, resourceId: String): [AdmissionPolicyStatement]!
+  admissionPolicyAuthorizationCheck(principal: String!, action: String!, resourceId: String!, ttl: String!): AdmissionPolicyAuthorization
+}
+
+type Mutation {
+  createAdmissionPolicy(admissionPolicy: AdmissionPolicyInput!): AdmissionPolicy
+  updateAdmissionPolicy(admissionPolicyUpdates: AdmissionPolicyUpdateInput!): AdmissionPolicy # encompasses add, update, delete
+  deleteAdmissionPolicy(id: String!): Boolean
+}
